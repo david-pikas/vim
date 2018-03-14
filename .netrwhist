@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/home/david/Documents/ioopm/lager2'
+let g:netrw_dirhist_2='/home/david/Documents/ioopm'
+let g:netrw_dirhist_3='/home/david/Documents'
+let g:netrw_dirhist_4='/home/david/Documents/domherrarna'
+let g:netrw_dirhist_5='/home/david/Documents/ioopm/kassako'
+let g:netrw_dirhist_6='/home/david/Documents/ioopm'
+let g:netrw_dirhist_7='/home/david/Documents/ioopm/lager2'
+let g:netrw_dirhist_8='/home/david/Documents/ioopm/kassako'
