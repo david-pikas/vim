@@ -1,3 +1,7 @@
+" nocompatible
+set nocompatible
+filetype off
+
 " More colors
 set t_Co=256
 
@@ -13,9 +17,6 @@ set fillchars=vert:\
 " spaces instead of tabs
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab smartindent
 
-" fuzzy file finder
-set rtp+=~/.fzf
-
 " case insensitve q/w/wq
 command! WQ wq
 command! Wq wq
@@ -29,31 +30,16 @@ command! Q q
 :nnoremap <silent> öj ddp
 :nnoremap <silent> ök ddkkp
 
+" more print commands 
+nnoremap <silent> gop op
+nnoremap <silent> gOp Op
+nnoremap <silent> gpp $p
+
 " pathogen
-execute pathogen#infect()
+" execute pathogen#infect('~/.vim/bundle/{}')
+
 syntax on
 filetype plugin indent on
-
-" Plug
-call plug#begin('~/.vim/plugged')
-
-    " Code Break Game
-    Plug 'johngrib/vim-game-code-break'
-
-
-call plug#end()
-
-
-
-" syntastic (error highlighting)
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
 
 " spell check
 autocmd FileType markdown,md,tex,latex setlocal spell
@@ -87,4 +73,9 @@ set fillchars=vert:\
 
 " line numbers
 set nu
+
+let mapleader = ' '
+
+" switch between buffers
+nnoremap <leader>b :ls<cr>:b<space>
 

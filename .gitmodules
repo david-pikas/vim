@@ -1,9 +1,0 @@
-[submodule "/home/david/.vim/bundle/vim-haskellConceal"]
-	path = /home/david/.vim/bundle/vim-haskellConceal
-	url = https://github.com/Twinside/vim-haskellConceal.git
-[submodule "bundle/vim-buftabline"]
-	path = bundle/vim-buftabline
-	url = https://github.com/ap/vim-buftabline.git
-[submodule "bundle/vim-g"]
-	path = bundle/vim-g
-	url = https://github.com/szw/vim-g.git
