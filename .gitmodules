@@ -10,3 +10,6 @@
 [submodule "pack/plugin/start/exchange"]
 	path = pack/plugin/start/exchange
 	url = https://github.com/tommcdo/vim-exchange.git
+[submodule "pack/plugin/start/nerd-commenter"]
+	path = pack/plugin/start/nerd-commenter
+	url = https://github.com/scrooloose/nerdcommenter.git
