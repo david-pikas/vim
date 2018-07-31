@@ -19,3 +19,6 @@
 [submodule "pack/plugin/start/vinegar"]
 	path = pack/plugin/start/vinegar
 	url = https://github.com/tpope/vim-vinegar.git
+[submodule "pack/plugin/start/buftabline"]
+	path = pack/plugin/start/buftabline
+	url = https://github.com/ap/vim-buftabline.git
