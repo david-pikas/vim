@@ -16,3 +16,6 @@
 [submodule "pack/plugin/start/traces"]
 	path = pack/plugin/start/traces
 	url = https://github.com/markonm/traces.vim.git
+[submodule "pack/plugin/start/vinegar"]
+	path = pack/plugin/start/vinegar
+	url = https://github.com/tpope/vim-vinegar.git
