@@ -1,3 +1,12 @@
 [submodule "pack/plugin/start/nerdcommenter"]
 	path = pack/plugin/start/nerdcommenter
 	url = https://github.com/scrooloose/nerdcommenter.git
+[submodule "pack/plugin/start/sandwich"]
+	path = pack/plugin/start/sandwich
+	url = https://github.com/machakann/vim-sandwich
+[submodule "pack/plugin/start/abolish"]
+	path = pack/plugin/start/abolish
+	url = https://github.com/tpope/vim-abolish.git
+[submodule "pack/plugin/start/exchange"]
+	path = pack/plugin/start/exchange
+	url = https://github.com/tommcdo/vim-exchange.git
