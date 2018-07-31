@@ -13,3 +13,6 @@
 [submodule "pack/plugin/start/nerd-commenter"]
 	path = pack/plugin/start/nerd-commenter
 	url = https://github.com/scrooloose/nerdcommenter.git
+[submodule "pack/plugin/start/traces"]
+	path = pack/plugin/start/traces
+	url = https://github.com/markonm/traces.vim.git
