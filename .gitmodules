@@ -22,3 +22,6 @@
 [submodule "pack/plugin/start/buftabline"]
 	path = pack/plugin/start/buftabline
 	url = https://github.com/ap/vim-buftabline.git
+[submodule "pack/plugin/start/lion"]
+	path = pack/plugin/start/lion
+	url = https://github.com/tommcdo/vim-lion.git
