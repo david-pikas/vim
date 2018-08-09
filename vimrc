@@ -21,8 +21,9 @@ nnoremap <C-N> :bnext<CR>
 nnoremap <C-P> :bprev<CR>
 
 " recolor tabline
-hi TabLineFill guifg=NONE ctermfg=NONE guibg=NONE ctermbg=NONE gui=NONE cterm=NONE
-hi TabLine guifg=NONE ctermfg=NONE guibg=NONE ctermbg=NONE gui=NONE cterm=NONE
+hi TabLineFill guifg=Black ctermfg=Black guibg=Black ctermbg=Black
+hi TabLine guifg=NONE ctermfg=DarkGrey guibg=NONE ctermbg=Black gui=NONE cterm=NONE
+hi Tabline guifg=NONE ctermfg=LightGrey guibg=NONE ctermbg=Grey
 
 " recolor split
 hi VertSplit ctermfg=Black ctermbg=Black 
@@ -65,6 +66,9 @@ nnoremap <silent> öw "_yiw:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o><c-l>
 nnoremap <silent> öö ddpk
 nnoremap <silent> öj ddp
 nnoremap <silent> ök ddkkp
+
+" Y
+nnoremap <silent> Y y$
 
 " more print commands 
 nnoremap <silent> gop op
