@@ -25,3 +25,6 @@
 [submodule "pack/plugin/start/lion"]
 	path = pack/plugin/start/lion
 	url = https://github.com/tommcdo/vim-lion.git
+[submodule "pack/plugin/start/es6"]
+	path = pack/plugin/start/es6
+	url = https://github.com/isRuslan/vim-es6.git
