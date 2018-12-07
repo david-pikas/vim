@@ -28,3 +28,6 @@
 [submodule "pack/plugin/start/es6"]
 	path = pack/plugin/start/es6
 	url = https://github.com/isRuslan/vim-es6.git
+[submodule "pack/plugin/start/base16"]
+	path = pack/plugin/start/base16
+	url = https://github.com/chriskempson/base16-vim.git
