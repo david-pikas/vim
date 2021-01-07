@@ -27,7 +27,7 @@ let g:ale_linters = { 'haskell':  []
                   \ , 'markdown': []
                   \ , 'javascript': []
                   \ , 'latex': ['chktex']
-                  \ , 'python': []
+                  \ , 'python': ['mypy']
                   \ , 'rust': []
                   \ }
 

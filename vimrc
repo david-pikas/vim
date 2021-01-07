@@ -38,7 +38,7 @@ set t_Co=256
 "   let base16colorspace=256
 "   source ~/.vimrc_background
 " endif
-colo elflord
+colo pablo
 
 " recolor split
 hi VertSplit ctermfg=Black ctermbg=Black 
@@ -141,6 +141,9 @@ set conceallevel=2
 autocmd BufNewFile,BufRead .xmobarrc set syntax=haskell
 
 " plugins
+" install with
+" curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+"     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 call plug#begin('~/.vim/plugged')
 
     "## MOTIONS and INTERACTIONS ##"
@@ -169,8 +172,6 @@ call plug#begin('~/.vim/plugged')
     Plug 'tpope/vim-abolish'
     " motion
     Plug 'easymotion/vim-easymotion'
-    " two character f
-    Plug 'roy2220/easyjump.tmux'
     " highlight f/F/t/T
     Plug 'unblevable/quick-scope'
     let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
