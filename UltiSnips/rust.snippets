@@ -1,0 +1,17 @@
+snippet implerror "impl Error"
+impl std::fmt::Display for $1 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        ${2:match self {
+            $3
+        }}
+    }
+}
+
+impl std::error::Error for $1 {}
+endsnippet
+
+snippet for "for $1 in $2 { $3 }"
+for $1 in $2 {
+    $3
+}
+endsnippet

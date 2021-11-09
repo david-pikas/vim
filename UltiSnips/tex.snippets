@@ -4,12 +4,28 @@ snippet env "Latex environment" b
 \end{$1}
 endsnippet
 
+snippet enum "Ordered list" b
+\begin{enumerate}
+    \item $1
+\end{enumerate}
+endsnippet
+
+snippet item "Unordered list" b
+\begin{itemize}
+    \item $1
+\end{itemize}
+endsnippet
+
 snippet sec "Section" b
 \section${2:*}{$1}
+
+$3
 endsnippet
 
 snippet ssec "Subsection" b
 \subsection${2:*}{$1}
+
+$3
 endsnippet
 
 snippet sssec "Sub-subsection" b

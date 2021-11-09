@@ -15,6 +15,12 @@ call textobj#user#plugin('tex', {
 \   },
 \ })
 
+function! textobj#tag_A()
+
+
+
+endfunction
+
 augroup tex_textobjs
   autocmd!
   autocmd FileType tex call textobj#user#map('tex', {

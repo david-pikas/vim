@@ -1,3 +1,13 @@
+" other config files:
+" syntax:
+"     ~/.vim/ftplugin/latex.vim
+" plugin:
+"     ~/.vim/plugin/lsc.vim
+"     ~/.vim/plugin/ale.vim
+"     ~/.vim/plugin/textobj.vim
+"     ~/.config/nvim/nvim-plugins.vim
+
+
 set nocompatible
 syntax on
 filetype indent on
@@ -6,10 +16,18 @@ filetype plugin on
 " symbols
 set conceallevel=2
 
+" highlight embeded languages
+let g:vimsyn_embed = 'lp'
+
 " Buffers
 set hidden
 nnoremap <C-N> :bnext<CR>
 nnoremap <C-P> :bprev<CR>
+
+" search settings
+set incsearch
+set hlsearch
+nnoremap <silent> <Esc> :nohlsearch<CR>
 
 " recolor tabline
 hi TabLineFill guifg=Black ctermfg=Black guibg=Black ctermbg=Black
@@ -21,6 +39,18 @@ hi VertSplit ctermfg=Black ctermbg=Black
 
 " remove split character
 set fillchars=vert:\ 
+
+" recolor gutter
+highlight clear SignColumn 
+set signcolumn=number
+augroup myGitGutter
+  autocmd!
+  autocmd ColorScheme *
+    \ highlight GitGutterAdd ctermfg=Green     |
+    \ highlight GitGutterChange ctermfg=Yellow |
+    \ highlight GitGutterDelete ctermfg=Red
+augroup END
+
 
 " line numbers
 set number
@@ -66,40 +96,14 @@ nnoremap <leader>l :set spelllang=
 
 nnoremap <silent> <leader>o :lopen<CR>
 
+" select pasted content
+nnoremap gp `[v`]
+
 
 " spell check
 augroup spellgroup
     autocmd!
     autocmd FileType txt,markdown,md,tex,latex setlocal spell
-augroup END
-
-" auto detect language latex
-let s:vim_lang = {'swedish':'sv', 'english':'en'}
-let &l:include = '\v\\%(%(input|include|subfile)\{|documentclass\[)\zs\f+\ze%(\}|\]\{subfiles\})'
-function! BabelSpellLang()
-  let s:babel=''
-  redir => s:babel
-    try
-      silent isearch /^\s*\\usepackage\s*\[[^\]]\+\]{babel}/
-    catch /Couldn't find pattern/
-      return
-    endtry
-  redir END
-  let s:babel_lang = matchstr(s:babel, 'usepackage\s*\[\zs[^\]]\+\ze\]')
-  let s:babel_lang = split(s:babel_lang, '\s*,\s*')
-  let s:babel_lang = filter(s:babel_lang, "has_key(s:vim_lang, v:val)")
-  let s:spelllang = map(s:babel_lang, "get(s:vim_lang, v:val, '')")
-  let &l:spelllang = join(s:spelllang, ',')
-endfunc
-
-augroup latex
-  autocmd!
-  " auto detect language
-  autocmd FileType tex,latex silent call BabelSpellLang()
-  " pdflatex as make
-  autocmd FileType tex,latex 
-    \ setlocal makeprg=pdflatex\ -file-line-error\ -interaction=nonstopmode\ % |
-    \ setlocal errorformat=%f:%l:\ %m
 augroup END
 
 augroup md
@@ -110,9 +114,25 @@ augroup md
     \ setlocal errorformat=\"%f\",\ line\ %l:\ %m
 augroup END
 
+augroup rust
+  autocmd!
+  autocmd FileType rust
+    \ setlocal makeprg=cargo\ check |
+    \ setlocal errorformat=%.%#-->\ %f:%l:%c |
+    \ setlocal errorformat+=%.%#-->\ %f\|%l\ col\ %c\\
+augroup END
+
+augroup haskell
+  autocmd!
+  autocmd FileType haskell
+    \ compiler stack |
+    \ setlocal makeprg=stack\ build
+augroup END
+
 " continous compilation
 " bang turns it of again
 command -bang AutoMake call ToggleAutoMake(<bang>0)
+
 function ToggleAutoMake(bang)
   augroup automake
     autocmd! * 
@@ -121,15 +141,33 @@ function ToggleAutoMake(bang)
     endif
   augroup END
 endfunction
-" command NoAutoMake augroup aumk | au! | augroup END
+
+" auto tags
+command -bang AutoTags call ToggleAutoTags(<bang>0)
+
+function ToggleAutoTags(bang)
+  augroup autotags
+    autocmd! * 
+    if a:bang == 0
+      autocmd BufWritePost <buffer> silent exec "Spawn! ctags %:h/*"
+    endif
+  augroup END
+endfunction
 
 " view as pdf
 command AsPdf silent exec "Start! zathura %:r.pdf"
 
 " copy as rich text via pandoc
 " https://unix.stackexchange.com/questions/84951/copy-markdown-input-to-the-clipboard-as-rich-text
-command -range=% PandocCopy <line1>,<line2>w !pandoc %:t | xclip -t text/html -selection clipboard 
+command -range=% PandocCopy execute "<line1>,<line2>w !pandoc -f " . PandocSyntax(&syntax) . " | xclip -t text/html -selection clipboard"
+command PandocPaste execute "r !xclip -o -t text/html -selection clipboard | pandoc -f html -t " . PandocSyntax(&syntax)
 
+function! PandocSyntax(format)
+  let pandocFormats = { "markdown": "gfm", "plaintex": "latex", "tex": "latex", "txt": "plain" }
+  return get(pandocFormats, a:format, a:format)
+endfunction
+
+command -range Dictate execute "<line1>,<line2>w !pandoc -f " . PandocSyntax(&syntax) . " -t plain | festival --tts"
 
 " soft wordwrap
 autocmd FileType txt,markdown,md,tex,latex setlocal linebreak
@@ -139,6 +177,12 @@ set conceallevel=2
 
 " extra syntax highligting
 autocmd BufNewFile,BufRead .xmobarrc set syntax=haskell
+
+" open external programs (like urls)
+let g:netrw_browsex_viewer= "xdg-open"
+
+" close netrw buffer after selecting file
+let g:netrw_fastbrowse = 0
 
 " plugins
 " install with
@@ -172,9 +216,11 @@ call plug#begin('~/.vim/plugged')
     Plug 'tpope/vim-abolish'
     " motion
     Plug 'easymotion/vim-easymotion'
-    " highlight f/F/t/T
-    Plug 'unblevable/quick-scope'
-    let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
+    " [] mappings
+    Plug 'tpope/vim-unimpaired'
+    "" highlight f/F/t/T
+    "Plug 'unblevable/quick-scope'
+    "let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
     " snippets
     Plug 'SirVer/ultisnips'
     let g:UltiSnipsExpandTrigger="<c-e>"
@@ -197,6 +243,9 @@ call plug#begin('~/.vim/plugged')
     Plug 'ryvnf/readline.vim'
     " git stuff
     Plug 'tpope/vim-fugitive'
+    Plug 'tpope/vim-rhubarb'
+    Plug 'airblade/vim-gitgutter'
+    let g:gitgutter_set_sign_backgrounds = 0
     " file explorer
     Plug 'tpope/vim-vinegar'
 
@@ -206,7 +255,7 @@ call plug#begin('~/.vim/plugged')
     " linting
     " (see ~/.vim/plugin/ale.vim)
     Plug 'dense-analysis/ale'
-    " LSP
+    " LSP (vim only)
     " (see ~/.vim/plugin/lsc.vim)
     Plug 'natebosch/vim-lsc'
     " elm
@@ -223,5 +272,16 @@ call plug#begin('~/.vim/plugged')
     Plug 'leafgarland/typescript-vim'
     " dafny
     Plug 'mlr-msft/vim-loves-dafny'
+    " OpenGL
+    Plug 'bfrg/vim-opengl-syntax'
+    " Shaders
+    Plug 'tikhomirov/vim-glsl'
+    " TOML
+    Plug 'cespare/vim-toml'
+
+    "## NVIM SPECIFIC ##"
+    if has('nvim')
+        source ~/.config/nvim/nvim-plugins.vim
+    endif
 
 call plug#end()
