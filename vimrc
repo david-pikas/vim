@@ -100,6 +100,40 @@ nnoremap <silent> <leader>o :lopen<CR>
 nnoremap gp `[v`]
 
 
+" move based on character class
+nnoremap <silent>\d :call search('\d', '', line('.'))<CR>
+nnoremap <silent>\w :call search('\w', '', line('.'))<CR>
+nnoremap <silent>\l :call search('\l', '', line('.'))<CR>
+nnoremap <silent>\u :call search('\u', '', line('.'))<CR>
+nnoremap <silent>\> :call search('\>', '', line('.'))<CR>
+nnoremap <silent>\< :call search('\<', '', line('.'))<CR>
+nnoremap <silent>\s :call search('\s', '', line('.'))<CR>
+nnoremap <silent>\S :call search('\S', '', line('.'))<CR>
+onoremap <silent>\d :call search('\d', '', line('.'))<CR>
+onoremap <silent>\w :call search('\w', '', line('.'))<CR>
+onoremap <silent>\l :call search('\l', '', line('.'))<CR>
+onoremap <silent>\u :call search('\u', '', line('.'))<CR>
+onoremap <silent>\> :call search('\>', '', line('.'))<CR>
+onoremap <silent>\< :call search('\<', '', line('.'))<CR>
+onoremap <silent>\s :call search('\s', '', line('.'))<CR>
+onoremap <silent>\S :call search('\S', '', line('.'))<CR>
+nnoremap <silent>g\d :call search('\d', 'b', line('.'))<CR>
+nnoremap <silent>g\w :call search('\w', 'b', line('.'))<CR>
+nnoremap <silent>g\l :call search('\l', 'b', line('.'))<CR>
+nnoremap <silent>g\u :call search('\u', 'b', line('.'))<CR>
+nnoremap <silent>g\> :call search('\>', 'b', line('.'))<CR>
+nnoremap <silent>g\< :call search('\<', 'b', line('.'))<CR>
+nnoremap <silent>g\s :call search('\s', 'b', line('.'))<CR>
+nnoremap <silent>g\S :call search('\S', 'b', line('.'))<CR>
+onoremap <silent>g\d :call search('\d', 'b', line('.'))<CR>
+onoremap <silent>g\w :call search('\w', 'b', line('.'))<CR>
+onoremap <silent>g\l :call search('\l', 'b', line('.'))<CR>
+onoremap <silent>g\u :call search('\u', 'b', line('.'))<CR>
+onoremap <silent>g\> :call search('\>', 'b', line('.'))<CR>
+onoremap <silent>g\< :call search('\<', 'b', line('.'))<CR>
+onoremap <silent>g\s :call search('\s', 'b', line('.'))<CR>
+onoremap <silent>g\S :call search('\S', 'b', line('.'))<CR>
+
 " spell check
 augroup spellgroup
     autocmd!
@@ -163,7 +197,7 @@ command -range=% PandocCopy execute "<line1>,<line2>w !pandoc -f " . PandocSynta
 command PandocPaste execute "r !xclip -o -t text/html -selection clipboard | pandoc -f html -t " . PandocSyntax(&syntax)
 
 function! PandocSyntax(format)
-  let pandocFormats = { "markdown": "gfm", "plaintex": "latex", "tex": "latex", "txt": "plain" }
+  let pandocFormats = { "markdown": "gfm-raw_html", "plaintex": "latex", "tex": "latex", "txt": "plain" }
   return get(pandocFormats, a:format, a:format)
 endfunction
 
@@ -199,6 +233,9 @@ call plug#begin('~/.vim/plugged')
     Plug 'machakann/vim-sandwich'
     let g:operator_sandwich_no_default_key_mappings = 1
     map gsa <Plug>(operator-sandwich-add)
+    map gsd <Plug>(operator-sandwich-delete)<Plug>(textobj-sandwich-query-a)
+    map gsr <Plug>(operator-sandwich-replace)<Plug>(textobj-sandwich-query-a)
+    vmap gsa <Plug>(operator-sandwich-add)
     vmap gsd <Plug>(operator-sandwich-delete)
     vmap gsr <Plug>(operator-sandwich-replace)
     " swap
@@ -278,6 +315,9 @@ call plug#begin('~/.vim/plugged')
     Plug 'tikhomirov/vim-glsl'
     " TOML
     Plug 'cespare/vim-toml'
+    " Emmet (for HTML)
+    Plug 'mattn/emmet-vim'
+
 
     "## NVIM SPECIFIC ##"
     if has('nvim')
