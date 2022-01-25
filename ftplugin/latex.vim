@@ -21,7 +21,7 @@ endfunc
 silent call BabelSpellLang()
 
 " pdflatex as make
-setlocal makeprg=rubber\ --pdf\ %
+setlocal makeprg=rubber\ --shell-escape\ --pdf\ %
 setlocal errorformat=%f:%l:\ %m
 
 
