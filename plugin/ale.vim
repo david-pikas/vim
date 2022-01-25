@@ -21,6 +21,8 @@ let g:ale_lint_on_insert_leave = 0
 "   \   'command': 'haskell-language-server-wrapper --lsp',
 "   \   'project_root': function('ale_linters#haskell#hie#GetProjectRoot'),
 "   \})
+"
+"   \ , 'c': ['cc', 'clangtidy']
 
 let g:ale_linters = { 'haskell':  []
                   \ , 'markdown': []
@@ -29,7 +31,7 @@ let g:ale_linters = { 'haskell':  []
                   \ , 'latex': []
                   \ , 'python': ['mypy']
                   \ , 'rust': []
-                  \ , 'c': ['cc', 'clangtidy']
+                  \ , 'c': []
                   \ , 'cpp': []
                   \ , 'erlang': []
                   \ }

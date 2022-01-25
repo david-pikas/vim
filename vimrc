@@ -13,6 +13,9 @@ syntax on
 filetype indent on
 filetype plugin on
 
+" change language to english
+language en_US.utf8
+
 " symbols
 set conceallevel=2
 
@@ -50,7 +53,6 @@ augroup myGitGutter
     \ highlight GitGutterChange ctermfg=Yellow |
     \ highlight GitGutterDelete ctermfg=Red
 augroup END
-
 
 " line numbers
 set number
@@ -99,6 +101,10 @@ nnoremap <silent> <leader>o :lopen<CR>
 " select pasted content
 nnoremap gp `[v`]
 
+" scroll horizontally 
+nnoremap <C-L> 20zl20l
+nnoremap <C-H> 20zh20h
+
 
 " spell check
 augroup spellgroup
@@ -121,6 +127,20 @@ augroup rust
     \ setlocal errorformat=%.%#-->\ %f:%l:%c |
     \ setlocal errorformat+=%.%#-->\ %f\|%l\ col\ %c\\
 augroup END
+
+augroup c
+  autocmd!
+  autocmd FileType c   call SetupVsproj()
+  autocmd FileType cpp call SetupVsproj()
+augroup END
+
+function! SetupVsproj()
+  let sln_files = glob("*.sln")
+  if !empty(sln_files)
+    let &makeprg="msbuild " . sln_files . " /property:GenerateFullPaths=true /p:buildmode=release"
+    let &errorformat=" %#%f(%l\\\,%c):\ %m"
+  endif
+endfunction
 
 augroup haskell
   autocmd!
@@ -149,9 +169,14 @@ function ToggleAutoTags(bang)
   augroup autotags
     autocmd! * 
     if a:bang == 0
-      autocmd BufWritePost <buffer> silent exec "Spawn! ctags %:h/*"
+      autocmd BufWritePost <buffer> call MakeTags()
     endif
   augroup END
+endfunction
+
+let g:ctags_cmd = "ctags %:h/*"
+function MakeTags()
+  silent exec "Spawn! " . g:ctags_cmd
 endfunction
 
 " view as pdf
@@ -246,8 +271,13 @@ call plug#begin('~/.vim/plugged')
     Plug 'tpope/vim-rhubarb'
     Plug 'airblade/vim-gitgutter'
     let g:gitgutter_set_sign_backgrounds = 0
+    " subversion
+    " Plug 'juneedahamed/svnj.vim'
+    Plug 'fourjay/vim-vcscommand'
     " file explorer
     Plug 'tpope/vim-vinegar'
+    " visual studdio
+    Plug 'heaths/vim-msbuild'
 
     "## LANGUAGES AND SYNTAX ##"
     " indent
@@ -285,3 +315,7 @@ call plug#begin('~/.vim/plugged')
     endif
 
 call plug#end()
+
+" needs to be at the end of the file for some reason
+" menu color
+hi Pmenu ctermbg=lightblue guibg=lightblue
