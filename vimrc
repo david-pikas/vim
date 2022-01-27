@@ -107,6 +107,7 @@ nnoremap <C-H> 20zh20h
 
 
 " move based on character class
+" normal
 nnoremap <silent>\d :call search('\d', '', line('.'))<CR>
 nnoremap <silent>\w :call search('\w', '', line('.'))<CR>
 nnoremap <silent>\l :call search('\l', '', line('.'))<CR>
@@ -115,6 +116,7 @@ nnoremap <silent>\> :call search('\>', '', line('.'))<CR>
 nnoremap <silent>\< :call search('\<', '', line('.'))<CR>
 nnoremap <silent>\s :call search('\s', '', line('.'))<CR>
 nnoremap <silent>\S :call search('\S', '', line('.'))<CR>
+" operator
 onoremap <silent>\d :call search('\d', '', line('.'))<CR>
 onoremap <silent>\w :call search('\w', '', line('.'))<CR>
 onoremap <silent>\l :call search('\l', '', line('.'))<CR>
@@ -123,6 +125,7 @@ onoremap <silent>\> :call search('\>', '', line('.'))<CR>
 onoremap <silent>\< :call search('\<', '', line('.'))<CR>
 onoremap <silent>\s :call search('\s', '', line('.'))<CR>
 onoremap <silent>\S :call search('\S', '', line('.'))<CR>
+" backwards
 nnoremap <silent>g\d :call search('\d', 'b', line('.'))<CR>
 nnoremap <silent>g\w :call search('\w', 'b', line('.'))<CR>
 nnoremap <silent>g\l :call search('\l', 'b', line('.'))<CR>
@@ -131,6 +134,7 @@ nnoremap <silent>g\> :call search('\>', 'b', line('.'))<CR>
 nnoremap <silent>g\< :call search('\<', 'b', line('.'))<CR>
 nnoremap <silent>g\s :call search('\s', 'b', line('.'))<CR>
 nnoremap <silent>g\S :call search('\S', 'b', line('.'))<CR>
+" operator backwards
 onoremap <silent>g\d :call search('\d', 'b', line('.'))<CR>
 onoremap <silent>g\w :call search('\w', 'b', line('.'))<CR>
 onoremap <silent>g\l :call search('\l', 'b', line('.'))<CR>
@@ -164,9 +168,43 @@ augroup END
 
 augroup c
   autocmd!
-  autocmd FileType c   call SetupVsproj()
-  autocmd FileType cpp call SetupVsproj()
+  autocmd FileType c   call CFiles()
+  autocmd FileType cpp call CFiles()
 augroup END
+
+function! CFiles()
+  nnoremap <buffer> <silent> ]h :call ToggleHeaderFile()<CR>
+  nnoremap <buffer> <silent> ]H :call ToggleHeaderSearch()<CR>
+  call SetupVsproj()
+endfunction
+
+function! ToggleHeaderSearch()
+  let word = expand('<cword>')
+  let toggled = ToggleHeaderFile()
+  if toggled 
+    call feedkeys("/\\<" . word . "\\>\<CR>")
+  endif
+endfunction
+
+function! ToggleHeaderFile()
+  let ext = expand('%:e')
+  let fname = expand('%:r')
+  if ext == 'h'
+    if filereadable(fname . ".cpp")
+      execute "edit " . fname . ".cpp"
+      return 1
+    elseif filereadable(fname . ".c")
+      execute "edit " . fname . ".c"
+      return 1
+    endif 
+  elseif ext == 'c' || ext == 'cpp'
+    if filereadable(fname . ".h")
+      execute "edit " . fname . ".h"
+      return 1
+    endif
+  endif
+  return 0
+endfunction
 
 function! SetupVsproj()
   let sln_files = glob("*.sln")
@@ -257,12 +295,12 @@ call plug#begin('~/.vim/plugged')
     " surround
     Plug 'machakann/vim-sandwich'
     let g:operator_sandwich_no_default_key_mappings = 1
-    map gsa <Plug>(operator-sandwich-add)
-    map gsd <Plug>(operator-sandwich-delete)<Plug>(textobj-sandwich-query-a)
-    map gsr <Plug>(operator-sandwich-replace)<Plug>(textobj-sandwich-query-a)
-    vmap gsa <Plug>(operator-sandwich-add)
-    vmap gsd <Plug>(operator-sandwich-delete)
-    vmap gsr <Plug>(operator-sandwich-replace)
+    map <leader>sa <Plug>(operator-sandwich-add)
+    map <leader>sd <Plug>(operator-sandwich-delete)<Plug>(textobj-sandwich-query-a)
+    map <leader>sr <Plug>(operator-sandwich-replace)<Plug>(textobj-sandwich-query-a)
+    vmap <leader>sa <Plug>(operator-sandwich-add)
+    vmap <leader>sd <Plug>(operator-sandwich-delete)
+    vmap <leader>sr <Plug>(operator-sandwich-replace)
     " swap
     Plug 'tommcdo/vim-exchange'
     " text objects
