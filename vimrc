@@ -1,11 +1,13 @@
 " other config files:
 " syntax:
 "     ~/.vim/ftplugin/latex.vim
+"     ~/.vim/ftplugin/c.vim
 " plugin:
 "     ~/.vim/plugin/lsc.vim
 "     ~/.vim/plugin/ale.vim
 "     ~/.vim/plugin/textobj.vim
 "     ~/.config/nvim/nvim-plugins.vim
+"     ~/.vim/after/compiler/iar.vim
 
 
 set nocompatible
@@ -24,8 +26,6 @@ let g:vimsyn_embed = 'lp'
 
 " Buffers
 set hidden
-nnoremap <C-N> :bnext<CR>
-nnoremap <C-P> :bprev<CR>
 
 " search settings
 set incsearch
@@ -62,6 +62,9 @@ let mapleader = ' '
 " switch between buffers
 nnoremap <leader>b :ls<cr>:b<space>
 
+" grep word under cursor
+nnoremap <leader>gr  :vimgrep "\<<C-R><C-W>\>" %:p:h/*
+
 " More colors
 set t_Co=256
 
@@ -72,6 +75,12 @@ set t_Co=256
 " endif
 colo pablo
 
+set mouse=a
+map <ScrollWheelUp> <C-Y>
+map <S-ScrollWheelUp> <C-U>
+map <ScrollWheelDown> <C-E>
+map <S-ScrollWheelDown> <C-D>
+
 " recolor split
 hi VertSplit ctermfg=Black ctermbg=Black 
 
@@ -80,6 +89,17 @@ set fillchars=vert:\
 
 " spaces instead of tabs
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab smartindent
+
+" project specific config files
+set secure
+if filereadable(".vimlocal")
+  silent source .vimlocal
+endif
+augroup vimlocal
+  autocmd!
+  autocmd BufEnter .vimlocal set filetype=vim
+augroup END
+set nosecure
 
 " case insensitve q/w/wq/wqa
 command! -bang WQ wq<bang>
@@ -246,9 +266,8 @@ function ToggleAutoTags(bang)
   augroup END
 endfunction
 
-let g:ctags_cmd = "ctags %:h/*"
 function MakeTags()
-  silent exec "Spawn! " . g:ctags_cmd
+  silent exec "Spawn! ctags -R " . getcwd()
 endfunction
 
 " view as pdf
@@ -266,7 +285,23 @@ endfunction
 
 command -range Dictate execute "<line1>,<line2>w !pandoc -f " . PandocSyntax(&syntax) . " -t plain | festival --tts"
 
-" soft wordwrap
+command -nargs=? SvnDiff call SvnDiff("<args>")
+
+function! SvnDiff(revision)
+  let origname = expand('%')
+  let origft = &filetype
+  let diffname = tempname()
+  let revisionarg = ""
+  if a:revision
+    let revisionarg = '-r ' . a:revision
+  endif
+  let basecontent = system('svn cat ' . origname . ' ' . revisionarg)
+  call writefile(split(basecontent, '\n'), diffname)
+  execute 'e ' . diffname
+  let &filetype = origft
+  execute 'vert diffsplit ' . origname
+endfunction
+
 autocmd FileType txt,markdown,md,tex,latex setlocal linebreak
 
 " symbols
@@ -280,6 +315,7 @@ let g:netrw_browsex_viewer= "xdg-open"
 
 " close netrw buffer after selecting file
 let g:netrw_fastbrowse = 0
+autocmd FileType netrw setl bufhidden=wipe
 
 " plugins
 " install with
@@ -326,6 +362,8 @@ call plug#begin('~/.vim/plugged')
     let g:UltiSnipsExpandTrigger="<c-e>"
     let g:UltiSnipsJumpForwardTrigger="<c-z>"
     let g:UltiSnipsJumpBackwardTrigger="<c-a>"
+    " My plugin for document outline / table of contents
+    Plug 'david-pikas/toc.vim'
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
