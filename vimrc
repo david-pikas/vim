@@ -8,6 +8,7 @@
 "     ~/.vim/plugin/textobj.vim
 "     ~/.config/nvim/nvim-plugins.vim
 "     ~/.vim/after/compiler/iar.vim
+"     ~/.vim/after/compiler/visualstudio.vim
 
 
 set nocompatible
@@ -26,6 +27,8 @@ let g:vimsyn_embed = 'lp'
 
 " Buffers
 set hidden
+" diffoff when a buffer becomes hidden
+set diffopt+=hiddenoff
 
 " search settings
 set incsearch
@@ -195,7 +198,6 @@ augroup END
 function! CFiles()
   nnoremap <buffer> <silent> ]h :call ToggleHeaderFile()<CR>
   nnoremap <buffer> <silent> ]H :call ToggleHeaderSearch()<CR>
-  call SetupVsproj()
 endfunction
 
 function! ToggleHeaderSearch()
@@ -224,14 +226,6 @@ function! ToggleHeaderFile()
     endif
   endif
   return 0
-endfunction
-
-function! SetupVsproj()
-  let sln_files = glob("*.sln")
-  if !empty(sln_files)
-    let &makeprg="msbuild " . sln_files . " /property:GenerateFullPaths=true /p:buildmode=release"
-    let &errorformat=" %#%f(%l\\\,%c):\ %m"
-  endif
 endfunction
 
 augroup haskell
@@ -358,12 +352,16 @@ call plug#begin('~/.vim/plugged')
     "Plug 'unblevable/quick-scope'
     "let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
     " snippets
-    Plug 'SirVer/ultisnips'
+    " Plug 'SirVer/ultisnips'
     let g:UltiSnipsExpandTrigger="<c-e>"
     let g:UltiSnipsJumpForwardTrigger="<c-z>"
     let g:UltiSnipsJumpBackwardTrigger="<c-a>"
     " My plugin for document outline / table of contents
     Plug 'david-pikas/toc.vim'
+    " Moving by indentation level
+    Plug 'jeetsukumaran/vim-indentwise'
+    " Diffing sections of text
+    Plug 'AndrewRadev/linediff.vim'
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
@@ -423,6 +421,12 @@ call plug#begin('~/.vim/plugged')
     Plug 'cespare/vim-toml'
     " Emmet (for HTML)
     Plug 'mattn/emmet-vim'
+    let g:user_emmet_mode = 'iv'
+    nnoremap   <leader><C-y>u   <plug>(emmet-update-tag)
+    nnoremap   <leader><C-y>d   <plug>(emmet-balance-tag-inward)
+    nnoremap   <leader><C-y>D   <plug>(emmet-balance-tag-outward)
+    nnoremap   <leader><C-y>n   <plug>(emmet-move-next)
+    nnoremap   <leader><C-y>N   <plug>(emmet-move-prev)
 
 
     "## NVIM SPECIFIC ##"

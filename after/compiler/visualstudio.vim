@@ -1,18 +1,16 @@
 if exists("current_compiler")
   finish
 endif
-let current_compiler = "iar"
+let current_compiler = "visualstudio"
 
 let s:cpo_save = &cpo
 set cpo&vim
 
-CompilerSet makeprg=IarBuild
-
+CompilerSet makeprg=msbuild
 CompilerSet errorformat=
-      \%f(%l)\ :\ %trror%m,
-      \%f(%l)\ :\ %tarning%m,
-      \%-GError\ while\ running\ Linker,
-      \%trror%m,
+      \%f(%l\\\,%c):\ %trror%m,
+      \%f(%l\\\,%c):\ %tarning%m,
+      \LINK\ :\ fatal\ %trror\ %m,
       \%-G%f,
       \%-G\\s%#,
       \%-G%.%#,
