@@ -257,12 +257,12 @@ call plug#begin('~/.vim/plugged')
     " surround
     Plug 'machakann/vim-sandwich'
     let g:operator_sandwich_no_default_key_mappings = 1
-    map gsa <Plug>(operator-sandwich-add)
-    map gsd <Plug>(operator-sandwich-delete)<Plug>(textobj-sandwich-query-a)
-    map gsr <Plug>(operator-sandwich-replace)<Plug>(textobj-sandwich-query-a)
-    vmap gsa <Plug>(operator-sandwich-add)
-    vmap gsd <Plug>(operator-sandwich-delete)
-    vmap gsr <Plug>(operator-sandwich-replace)
+    map <leader>sa <Plug>(operator-sandwich-add)
+    map <leader>sd <Plug>(operator-sandwich-delete)<Plug>(textobj-sandwich-query-a)
+    map <leader>sr <Plug>(operator-sandwich-replace)<Plug>(textobj-sandwich-query-a)
+    vmap <leader>sa <Plug>(operator-sandwich-add)
+    vmap <leader>sd <Plug>(operator-sandwich-delete)
+    vmap <leader>sr <Plug>(operator-sandwich-replace)
     " swap
     Plug 'tommcdo/vim-exchange'
     " text objects
@@ -288,6 +288,8 @@ call plug#begin('~/.vim/plugged')
     let g:UltiSnipsExpandTrigger="<c-e>"
     let g:UltiSnipsJumpForwardTrigger="<c-z>"
     let g:UltiSnipsJumpBackwardTrigger="<c-a>"
+    " distraction free writing
+    Plug 'junegunn/goyo.vim'
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers

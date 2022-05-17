@@ -21,7 +21,9 @@ endfunc
 silent call BabelSpellLang()
 
 " pdflatex as make
-setlocal makeprg=rubber\ --shell-escape\ --pdf\ %
+setlocal makeprg=rubber\ --into\ %:h\ --shell-escape\ --pdf\ %
 setlocal errorformat=%f:%l:\ %m
 
-
+" move tag
+nnoremap <silent>]] :call search('\v\\((sub){0,3}section\|begin)', '')<CR>
+nnoremap <silent>[[ :call search('\v\\((sub){0,3}section\|begin)', 'b')<CR>

@@ -1,5 +1,6 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =7
+let g:netrw_dirhistcnt =8
+let g:netrw_dirhist_8='/home/dave/.config/nvim'
 let g:netrw_dirhist_7='/tmp'
 let g:netrw_dirhist_6='/home/dave/paru/pkg/paru/usr/bin'
 let g:netrw_dirhist_5='/home/dave/paru/pkg/paru/usr'
@@ -9,4 +10,3 @@ let g:netrw_dirhist_2='/home/dave/Documents/exjobb/project'
 let g:netrw_dirhist_1='/home/dave/Documents/exjobb/project/src'
 let g:netrw_dirhist_0='/home/dave/Documents/exjobb/project/add_depth'
 let g:netrw_dirhist_9='/home/dave/Documents/exjobb/project/add_depth/src'
-let g:netrw_dirhist_8='/home/dave/Documents/exjobb/project'
