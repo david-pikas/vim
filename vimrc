@@ -1,11 +1,14 @@
 " other config files:
 " syntax:
 "     ~/.vim/ftplugin/latex.vim
+"     ~/.vim/ftplugin/c.vim
 " plugin:
 "     ~/.vim/plugin/lsc.vim
 "     ~/.vim/plugin/ale.vim
 "     ~/.vim/plugin/textobj.vim
 "     ~/.config/nvim/nvim-plugins.vim
+"     ~/.vim/after/compiler/iar.vim
+"     ~/.vim/after/compiler/visualstudio.vim
 
 
 set nocompatible
@@ -24,8 +27,8 @@ let g:vimsyn_embed = 'lp'
 
 " Buffers
 set hidden
-nnoremap <C-N> :bnext<CR>
-nnoremap <C-P> :bprev<CR>
+" diffoff when a buffer becomes hidden
+set diffopt+=hiddenoff
 
 " search settings
 set incsearch
@@ -62,6 +65,9 @@ let mapleader = ' '
 " switch between buffers
 nnoremap <leader>b :ls<cr>:b<space>
 
+" grep word under cursor
+nnoremap <leader>gr  :vimgrep "\<<C-R><C-W>\>" %:p:h/*
+
 " More colors
 set t_Co=256
 
@@ -72,6 +78,12 @@ set t_Co=256
 " endif
 colo pablo
 
+set mouse=a
+map <ScrollWheelUp> <C-Y>
+map <S-ScrollWheelUp> <C-U>
+map <ScrollWheelDown> <C-E>
+map <S-ScrollWheelDown> <C-D>
+
 " recolor split
 hi VertSplit ctermfg=Black ctermbg=Black 
 
@@ -80,6 +92,17 @@ set fillchars=vert:\
 
 " spaces instead of tabs
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab smartindent
+
+" project specific config files
+set secure
+if filereadable(".vimlocal")
+  silent source .vimlocal
+endif
+augroup vimlocal
+  autocmd!
+  autocmd BufEnter .vimlocal set filetype=vim
+augroup END
+set nosecure
 
 " case insensitve q/w/wq/wqa
 command! -bang WQ wq<bang>
@@ -107,6 +130,7 @@ nnoremap <C-H> 20zh20h
 
 
 " move based on character class
+" normal
 nnoremap <silent>\d :call search('\d', '', line('.'))<CR>
 nnoremap <silent>\w :call search('\w', '', line('.'))<CR>
 nnoremap <silent>\l :call search('\l', '', line('.'))<CR>
@@ -115,6 +139,7 @@ nnoremap <silent>\> :call search('\>', '', line('.'))<CR>
 nnoremap <silent>\< :call search('\<', '', line('.'))<CR>
 nnoremap <silent>\s :call search('\s', '', line('.'))<CR>
 nnoremap <silent>\S :call search('\S', '', line('.'))<CR>
+" operator
 onoremap <silent>\d :call search('\d', '', line('.'))<CR>
 onoremap <silent>\w :call search('\w', '', line('.'))<CR>
 onoremap <silent>\l :call search('\l', '', line('.'))<CR>
@@ -123,6 +148,7 @@ onoremap <silent>\> :call search('\>', '', line('.'))<CR>
 onoremap <silent>\< :call search('\<', '', line('.'))<CR>
 onoremap <silent>\s :call search('\s', '', line('.'))<CR>
 onoremap <silent>\S :call search('\S', '', line('.'))<CR>
+" backwards
 nnoremap <silent>g\d :call search('\d', 'b', line('.'))<CR>
 nnoremap <silent>g\w :call search('\w', 'b', line('.'))<CR>
 nnoremap <silent>g\l :call search('\l', 'b', line('.'))<CR>
@@ -131,6 +157,7 @@ nnoremap <silent>g\> :call search('\>', 'b', line('.'))<CR>
 nnoremap <silent>g\< :call search('\<', 'b', line('.'))<CR>
 nnoremap <silent>g\s :call search('\s', 'b', line('.'))<CR>
 nnoremap <silent>g\S :call search('\S', 'b', line('.'))<CR>
+" operator backwards
 onoremap <silent>g\d :call search('\d', 'b', line('.'))<CR>
 onoremap <silent>g\w :call search('\w', 'b', line('.'))<CR>
 onoremap <silent>g\l :call search('\l', 'b', line('.'))<CR>
@@ -164,16 +191,41 @@ augroup END
 
 augroup c
   autocmd!
-  autocmd FileType c   call SetupVsproj()
-  autocmd FileType cpp call SetupVsproj()
+  autocmd FileType c   call CFiles()
+  autocmd FileType cpp call CFiles()
 augroup END
 
-function! SetupVsproj()
-  let sln_files = glob("*.sln")
-  if !empty(sln_files)
-    let &makeprg="msbuild " . sln_files . " /property:GenerateFullPaths=true /p:buildmode=release"
-    let &errorformat=" %#%f(%l\\\,%c):\ %m"
+function! CFiles()
+  nnoremap <buffer> <silent> ]h :call ToggleHeaderFile()<CR>
+  nnoremap <buffer> <silent> ]H :call ToggleHeaderSearch()<CR>
+endfunction
+
+function! ToggleHeaderSearch()
+  let word = expand('<cword>')
+  let toggled = ToggleHeaderFile()
+  if toggled 
+    call feedkeys("/\\<" . word . "\\>\<CR>")
   endif
+endfunction
+
+function! ToggleHeaderFile()
+  let ext = expand('%:e')
+  let fname = expand('%:r')
+  if ext == 'h'
+    if filereadable(fname . ".cpp")
+      execute "edit " . fname . ".cpp"
+      return 1
+    elseif filereadable(fname . ".c")
+      execute "edit " . fname . ".c"
+      return 1
+    endif 
+  elseif ext == 'c' || ext == 'cpp'
+    if filereadable(fname . ".h")
+      execute "edit " . fname . ".h"
+      return 1
+    endif
+  endif
+  return 0
 endfunction
 
 augroup haskell
@@ -208,9 +260,8 @@ function ToggleAutoTags(bang)
   augroup END
 endfunction
 
-let g:ctags_cmd = "ctags %:h/*"
 function MakeTags()
-  silent exec "Spawn! " . g:ctags_cmd
+  silent exec "Spawn! ctags -R " . getcwd()
 endfunction
 
 " view as pdf
@@ -228,7 +279,23 @@ endfunction
 
 command -range Dictate execute "<line1>,<line2>w !pandoc -f " . PandocSyntax(&syntax) . " -t plain | festival --tts"
 
-" soft wordwrap
+command -nargs=? SvnDiff call SvnDiff("<args>")
+
+function! SvnDiff(revision)
+  let origname = expand('%')
+  let origft = &filetype
+  let diffname = tempname()
+  let revisionarg = ""
+  if a:revision
+    let revisionarg = '-r ' . a:revision
+  endif
+  let basecontent = system('svn cat ' . origname . ' ' . revisionarg)
+  call writefile(split(basecontent, '\n'), diffname)
+  execute 'e ' . diffname
+  let &filetype = origft
+  execute 'vert diffsplit ' . origname
+endfunction
+
 autocmd FileType txt,markdown,md,tex,latex setlocal linebreak
 
 " symbols
@@ -242,6 +309,7 @@ let g:netrw_browsex_viewer= "xdg-open"
 
 " close netrw buffer after selecting file
 let g:netrw_fastbrowse = 0
+autocmd FileType netrw setl bufhidden=wipe
 
 " plugins
 " install with
@@ -284,12 +352,16 @@ call plug#begin('~/.vim/plugged')
     "Plug 'unblevable/quick-scope'
     "let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
     " snippets
-    Plug 'SirVer/ultisnips'
+    " Plug 'SirVer/ultisnips'
     let g:UltiSnipsExpandTrigger="<c-e>"
     let g:UltiSnipsJumpForwardTrigger="<c-z>"
     let g:UltiSnipsJumpBackwardTrigger="<c-a>"
     " distraction free writing
     Plug 'junegunn/goyo.vim'
+    " Moving by indentation level
+    Plug 'jeetsukumaran/vim-indentwise'
+    " Diffing sections of text
+    Plug 'AndrewRadev/linediff.vim'
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
@@ -349,6 +421,12 @@ call plug#begin('~/.vim/plugged')
     Plug 'cespare/vim-toml'
     " Emmet (for HTML)
     Plug 'mattn/emmet-vim'
+    let g:user_emmet_mode = 'iv'
+    nnoremap   <leader><C-y>u   <plug>(emmet-update-tag)
+    nnoremap   <leader><C-y>d   <plug>(emmet-balance-tag-inward)
+    nnoremap   <leader><C-y>D   <plug>(emmet-balance-tag-outward)
+    nnoremap   <leader><C-y>n   <plug>(emmet-move-next)
+    nnoremap   <leader><C-y>N   <plug>(emmet-move-prev)
 
 
     "## NVIM SPECIFIC ##"
