@@ -36,5 +36,6 @@ let g:ale_linters = { 'haskell':  []
                   \ , 'c': []
                   \ , 'cpp': []
                   \ , 'erlang': []
+                  \ , 'ruby': []
                   \ }
 

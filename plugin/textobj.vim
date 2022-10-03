@@ -63,7 +63,7 @@ endfunction
 
 call textobj#user#plugin('entire', {
 \      '-': {
-\        'select-a': 'af',  'select-a-function': 'textobj#select_a',
-\        'select-i': 'if',  'select-i-function': 'textobj#select_i'
+\        'select-a': 'aF',  'select-a-function': 'textobj#select_a',
+\        'select-i': 'iF',  'select-i-function': 'textobj#select_i'
 \      }
 \    })

@@ -25,7 +25,7 @@ if !has('nvim')
    \    'FindReferences': 'gr',
    \    'Rename': 'gR',
    \    'ShowHover': v:true,
-   \    'FindCodeActions': 'ga',
+   \    'FindCodeActions': '<leader>d',
    \    'Completion': 'omnifunc',
    \}
   " format not available but f= is currently used for that by

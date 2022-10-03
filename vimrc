@@ -35,6 +35,13 @@ set incsearch
 set hlsearch
 nnoremap <silent> <Esc> :nohlsearch<CR>
 
+" 'fuzzy' finding with :find
+set path+=**
+
+" ^N from includes and tags
+set complete+=i
+set complete+=t
+
 " recolor tabline
 hi TabLineFill guifg=Black ctermfg=Black guibg=Black ctermbg=Black
 hi TabLine guifg=NONE ctermfg=DarkGrey guibg=NONE ctermbg=Black gui=NONE cterm=NONE
@@ -47,11 +54,11 @@ hi VertSplit ctermfg=Black ctermbg=Black
 set fillchars=vert:\ 
 
 " recolor gutter
-highlight clear SignColumn 
 set signcolumn=number
 augroup myGitGutter
   autocmd!
   autocmd ColorScheme *
+    \ highlight clear SignColumn |
     \ highlight GitGutterAdd ctermfg=Green     |
     \ highlight GitGutterChange ctermfg=Yellow |
     \ highlight GitGutterDelete ctermfg=Red
@@ -64,20 +71,24 @@ let mapleader = ' '
 
 " switch between buffers
 nnoremap <leader>b :ls<cr>:b<space>
+" switch in arglst
+nnoremap <leader>a :args<cr>:argument<space>
+
+" open windows in a more normal wa
+set splitbelow
+set splitright
 
 " grep word under cursor
-nnoremap <leader>gr  :vimgrep "\<<C-R><C-W>\>" %:p:h/*
+nnoremap <leader>gr :vimgrep "\<<C-R><C-W>\>" %:p:h/*
+
+" expand block
+inoremap {<Tab> {<CR><CR>}kcc
 
 " More colors
 set t_Co=256
 
-" Change colorscheme
-" if filereadable(expand("~/.vimrc_background"))
-"   let base16colorspace=256
-"   source ~/.vimrc_background
-" endif
-colo pablo
 
+" use mouse
 set mouse=a
 map <ScrollWheelUp> <C-Y>
 map <S-ScrollWheelUp> <C-U>
@@ -117,7 +128,7 @@ command! -bang WQA wqa<bang>
 nnoremap <silent> Y y$
 
 " change language
-nnoremap <leader>l :set spelllang=
+nnoremap <leader>l :setlocal spell \| setlocal spelllang=
 
 nnoremap <silent> <leader>o :lopen<CR>
 
@@ -128,44 +139,17 @@ nnoremap gp `[v`]
 nnoremap <C-L> 20zl20l
 nnoremap <C-H> 20zh20h
 
-
-" move based on character class
-" normal
-nnoremap <silent>\d :call search('\d', '', line('.'))<CR>
-nnoremap <silent>\w :call search('\w', '', line('.'))<CR>
-nnoremap <silent>\l :call search('\l', '', line('.'))<CR>
-nnoremap <silent>\u :call search('\u', '', line('.'))<CR>
-nnoremap <silent>\> :call search('\>', '', line('.'))<CR>
-nnoremap <silent>\< :call search('\<', '', line('.'))<CR>
-nnoremap <silent>\s :call search('\s', '', line('.'))<CR>
-nnoremap <silent>\S :call search('\S', '', line('.'))<CR>
-" operator
-onoremap <silent>\d :call search('\d', '', line('.'))<CR>
-onoremap <silent>\w :call search('\w', '', line('.'))<CR>
-onoremap <silent>\l :call search('\l', '', line('.'))<CR>
-onoremap <silent>\u :call search('\u', '', line('.'))<CR>
-onoremap <silent>\> :call search('\>', '', line('.'))<CR>
-onoremap <silent>\< :call search('\<', '', line('.'))<CR>
-onoremap <silent>\s :call search('\s', '', line('.'))<CR>
-onoremap <silent>\S :call search('\S', '', line('.'))<CR>
-" backwards
-nnoremap <silent>g\d :call search('\d', 'b', line('.'))<CR>
-nnoremap <silent>g\w :call search('\w', 'b', line('.'))<CR>
-nnoremap <silent>g\l :call search('\l', 'b', line('.'))<CR>
-nnoremap <silent>g\u :call search('\u', 'b', line('.'))<CR>
-nnoremap <silent>g\> :call search('\>', 'b', line('.'))<CR>
-nnoremap <silent>g\< :call search('\<', 'b', line('.'))<CR>
-nnoremap <silent>g\s :call search('\s', 'b', line('.'))<CR>
-nnoremap <silent>g\S :call search('\S', 'b', line('.'))<CR>
-" operator backwards
-onoremap <silent>g\d :call search('\d', 'b', line('.'))<CR>
-onoremap <silent>g\w :call search('\w', 'b', line('.'))<CR>
-onoremap <silent>g\l :call search('\l', 'b', line('.'))<CR>
-onoremap <silent>g\u :call search('\u', 'b', line('.'))<CR>
-onoremap <silent>g\> :call search('\>', 'b', line('.'))<CR>
-onoremap <silent>g\< :call search('\<', 'b', line('.'))<CR>
-onoremap <silent>g\s :call search('\s', 'b', line('.'))<CR>
-onoremap <silent>g\S :call search('\S', 'b', line('.'))<CR>
+" use \<regex char group> to move to that group e.g. \d to move to next digit
+for regex in ['d','w','l','u','<','>','s','S'] 
+  " normal
+  execute "nnoremap <silent>\\".regex." :call search('\\".regex."', '', line('.'))<CR>"
+  " operator
+  execute "onoremap <silent>\\".regex." :call search('\\".regex."', '', line('.'))<CR>"
+  " backwards
+  execute "nnoremap <silent>g\\".regex." :call search('\\".regex."', 'b', line('.'))<CR>"
+  " backwards operator
+  execute "onoremap <silent>g\\".regex." :call search('\\".regex."', 'b', line('.'))<CR>"
+endfor
 
 " spell check
 augroup spellgroup
@@ -184,9 +168,10 @@ augroup END
 augroup rust
   autocmd!
   autocmd FileType rust
-    \ setlocal makeprg=cargo\ check |
-    \ setlocal errorformat=%.%#-->\ %f:%l:%c |
-    \ setlocal errorformat+=%.%#-->\ %f\|%l\ col\ %c\\
+    \ compiler rustc |
+    \ setlocal makeprg=cargo\ check 
+    " \ setlocal errorformat=%.%#-->\ %f:%l:%c |
+    " \ setlocal errorformat+=%.%#-->\ %f\|%l\ col\ %c\\
 augroup END
 
 augroup c
@@ -236,7 +221,7 @@ augroup haskell
 augroup END
 
 " continous compilation
-" bang turns it of again
+" bang turns it off again
 command -bang AutoMake call ToggleAutoMake(<bang>0)
 
 function ToggleAutoMake(bang)
@@ -269,7 +254,7 @@ command AsPdf silent exec "Start! zathura %:r.pdf"
 
 " copy as rich text via pandoc
 " https://unix.stackexchange.com/questions/84951/copy-markdown-input-to-the-clipboard-as-rich-text
-command -range=% PandocCopy execute "<line1>,<line2>w !pandoc -f " . PandocSyntax(&syntax) . " | xclip -t text/html -selection clipboard"
+command -range=% PandocCopy execute "<line1>,<line2>w !pandoc -f " . PandocSyntax(&syntax) . " -t html | xclip -t text/html -selection clipboard"
 command PandocPaste execute "r !xclip -o -t text/html -selection clipboard | pandoc -f html -t " . PandocSyntax(&syntax)
 
 function! PandocSyntax(format)
@@ -296,7 +281,9 @@ function! SvnDiff(revision)
   execute 'vert diffsplit ' . origname
 endfunction
 
-autocmd FileType txt,markdown,md,tex,latex setlocal linebreak
+command -nargs=1 Retab execute "set noexpandtab | retab! | set tabstop=<args> softtabstop=<args> expandtab | retab!"
+
+autocmd FileType txt,text,markdown,md,tex,latex setlocal linebreak
 
 " symbols
 set conceallevel=2
@@ -311,7 +298,19 @@ let g:netrw_browsex_viewer= "xdg-open"
 let g:netrw_fastbrowse = 0
 autocmd FileType netrw setl bufhidden=wipe
 
-" plugins
+"## PLUGINS ##"
+
+" built-in debugging plugin
+packadd termdebug
+nnoremap <leader>ds :Step<cr>
+nnoremap <leader>db :Break<cr>
+nnoremap <leader>dB :Clear<cr>
+nnoremap <leader>dn :Over<cr>
+nnoremap <leader>dc :Continue<cr>
+nnoremap <leader>df :Finish<cr>
+nnoremap <leader>de :Evaluate<cr>
+vnoremap <leader>de :Evaluate<cr>
+
 " install with
 " curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 "     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -348,35 +347,42 @@ call plug#begin('~/.vim/plugged')
     Plug 'easymotion/vim-easymotion'
     " [] mappings
     Plug 'tpope/vim-unimpaired'
-    "" highlight f/F/t/T
-    "Plug 'unblevable/quick-scope'
-    "let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
     " snippets
-    " Plug 'SirVer/ultisnips'
-    let g:UltiSnipsExpandTrigger="<c-e>"
-    let g:UltiSnipsJumpForwardTrigger="<c-z>"
-    let g:UltiSnipsJumpBackwardTrigger="<c-a>"
+    "
+    " Need to check for python, if it's not there
+    " UltiSnips makes insert mode unusable
+    " TODO: more rigourus check 
+    if has('python') || has('pyhton3') || has('nvim')
+      Plug 'SirVer/ultisnips'
+      let g:UltiSnipsExpandTrigger="<c-e>"
+      let g:UltiSnipsJumpForwardTrigger="<c-z>"
+      let g:UltiSnipsJumpBackwardTrigger="<c-a>"
+    endif
     " distraction free writing
     Plug 'junegunn/goyo.vim'
     " Moving by indentation level
     Plug 'jeetsukumaran/vim-indentwise'
     " Diffing sections of text
     Plug 'AndrewRadev/linediff.vim'
+    " colorscheme
+    Plug 'arcticicestudio/nord-vim'
+    " Undo tree viewer
+    Plug 'mbbill/undotree'
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
     Plug 'tpope/vim-eunuch'
     " make sure focus events work in tmux
     Plug 'tmux-plugins/vim-tmux-focus-events'
-    " tmux autocomplete 
-    Plug 'wellle/tmux-complete.vim'
+    " " tmux autocomplete 
+    " Plug 'wellle/tmux-complete.vim'
     " run things in tmux instead of blocking vim
     Plug 'tpope/vim-dispatch'
     " fzf (fuzzy file finding)
     Plug 'junegunn/fzf', { 'do': './install --bin' }
     Plug 'junegunn/fzf.vim'
     " readline keybindings for command-line mode
-    Plug 'ryvnf/readline.vim'
+    Plug 'tpope/vim-rsi'
     " git stuff
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-rhubarb'
@@ -403,8 +409,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'andys8/vim-elm-syntax'
     " spell check
     Plug 'rhysd/vim-grammarous'
-    "" Plug 'dpelle/vim-LanguageTool'
-    "let g:languagetool_cmd='/usr/bin/languagetool'
+    Plug 'dpelle/vim-LanguageTool'
+    let g:languagetool_jar='~/LanguageTool-5.8/languagetool-commandline.jar'
     " react
     Plug 'peitalin/vim-jsx-typescript'
     " latex syntax highligting
@@ -421,12 +427,14 @@ call plug#begin('~/.vim/plugged')
     Plug 'cespare/vim-toml'
     " Emmet (for HTML)
     Plug 'mattn/emmet-vim'
+    " ren'py
+    Plug 'chaimleib/vim-renpy'
     let g:user_emmet_mode = 'iv'
-    nnoremap   <leader><C-y>u   <plug>(emmet-update-tag)
-    nnoremap   <leader><C-y>d   <plug>(emmet-balance-tag-inward)
-    nnoremap   <leader><C-y>D   <plug>(emmet-balance-tag-outward)
-    nnoremap   <leader><C-y>n   <plug>(emmet-move-next)
-    nnoremap   <leader><C-y>N   <plug>(emmet-move-prev)
+    nnoremap <leader><C-y>u <plug>(emmet-update-tag)
+    nnoremap <leader><C-y>d <plug>(emmet-balance-tag-inward)
+    nnoremap <leader><C-y>D <plug>(emmet-balance-tag-outward)
+    nnoremap <leader><C-y>n <plug>(emmet-move-next)
+    nnoremap <leader><C-y>N <plug>(emmet-move-prev)
 
 
     "## NVIM SPECIFIC ##"
@@ -436,6 +444,5 @@ call plug#begin('~/.vim/plugged')
 
 call plug#end()
 
-" needs to be at the end of the file for some reason
-" menu color
-hi Pmenu ctermbg=lightblue guibg=lightblue
+colorscheme nord
+hi Normal guibg=NONE ctermbg=NONE
