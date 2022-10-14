@@ -16,11 +16,18 @@ syntax on
 filetype indent on
 filetype plugin on
 
+" true colors
+set termguicolors
+
 " change language to english
 language en_US.utf8
 
 " symbols
 set conceallevel=2
+
+" trailing whitespace
+set list
+set listchars=trail:·,tab:» 
 
 " highlight embeded languages
 let g:vimsyn_embed = 'lp'
@@ -124,6 +131,24 @@ command! -bang Wqa wqa<bang>
 command! -bang WQa wqa<bang>
 command! -bang WQA wqa<bang>
 
+" Cowerker friendly options
+nnoremap <F5>  :Make<cr>
+nnoremap <F12> <C-]>
+nnoremap <F11> :Step<cr>
+nnoremap <F10> :Over<cr>
+
+command -bang CoworkerMode call CoworkerMode(<bang>1)
+" expanded upon in nvim/init.vim
+function CoworkerMode(enable)
+  if a:enable
+    set selectmode=mouse
+    let g:smoothie_enabled=1
+  else
+    let g:smoothie_enabled=0
+    set selectmode=
+  endif
+endfunction
+
 " Y
 nnoremap <silent> Y y$
 
@@ -150,6 +175,17 @@ for regex in ['d','w','l','u','<','>','s','S']
   " backwards operator
   execute "onoremap <silent>g\\".regex." :call search('\\".regex."', 'b', line('.'))<CR>"
 endfor
+
+" use ripgrep for :grep
+if executable('vimrg')
+  " windows doesn't handle globs inside vim properly
+  " so instead we use a script that calls rg from fd
+  " if available
+  set grepprg=vimrg
+elseif executable('rg')
+  set grepprg=rg
+endif
+
 
 " spell check
 augroup spellgroup
@@ -194,6 +230,10 @@ function! ToggleHeaderSearch()
 endfunction
 
 function! ToggleHeaderFile()
+  if exists(':ClangdSwitchSourceHeader')
+    ClangdSwitchSourceHeader
+    return 1
+  endif
   let ext = expand('%:e')
   let fname = expand('%:r')
   if ext == 'h'
@@ -264,21 +304,49 @@ endfunction
 
 command -range Dictate execute "<line1>,<line2>w !pandoc -f " . PandocSyntax(&syntax) . " -t plain | festival --tts"
 
+" see :h :DiffOrig
+command DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis | wincmd p | diffthis
+
 command -nargs=? SvnDiff call SvnDiff("<args>")
 
 function! SvnDiff(revision)
-  let origname = expand('%')
-  let origft = &filetype
+  call SvnDiffFile(expand('%'), revision)
+endfunction
+
+command -nargs=? SvnDiffAll call SvnDiffAll("<args>")
+
+function! SvnDiffAll(revision)
+  let changed = system('svn diff --summarize')
+  if changed =~# '^svn: E.*'
+      echoerr "not in a svn directory"
+  endif
+  let changed_list = split(changed, "\n")
+  for item in changed_list 
+      if item =~# '^MM\?'
+          let file = matchlist(item, 'MM\?\s*\(.*$\)')[1]
+          execute 'tabnew'
+          execute 'edit '.file
+          call SvnDiffFile(file, a:revision)
+      endif
+  endfor
+endfunction
+
+" NOTE: the split gets its syntax highlighting from the current
+" open file, not the file argument. These happen to be the same
+" so far, but this should be changed if the function is used in
+" more complicated ways.
+function! SvnDiffFile(file, revision)
+  let ft = &filetype
   let diffname = tempname()
   let revisionarg = ""
   if a:revision
     let revisionarg = '-r ' . a:revision
   endif
-  let basecontent = system('svn cat ' . origname . ' ' . revisionarg)
+  let basecontent = system('svn cat ' . a:file . ' ' . revisionarg)
   call writefile(split(basecontent, '\n'), diffname)
   execute 'e ' . diffname
-  let &filetype = origft
-  execute 'vert diffsplit ' . origname
+  let &filetype = ft
+  execute 'vert diffsplit ' . a:file
 endfunction
 
 command -nargs=1 Retab execute "set noexpandtab | retab! | set tabstop=<args> softtabstop=<args> expandtab | retab!"
@@ -302,14 +370,27 @@ autocmd FileType netrw setl bufhidden=wipe
 
 " built-in debugging plugin
 packadd termdebug
-nnoremap <leader>ds :Step<cr>
-nnoremap <leader>db :Break<cr>
-nnoremap <leader>dB :Clear<cr>
-nnoremap <leader>dn :Over<cr>
-nnoremap <leader>dc :Continue<cr>
-nnoremap <leader>df :Finish<cr>
-nnoremap <leader>de :Evaluate<cr>
-vnoremap <leader>de :Evaluate<cr>
+
+augroup debugger
+  autocmd!
+  autocmd User TermdebugStartPre
+        \ nnoremap <leader>ds :Step<cr>     |
+        \ nnoremap <leader>db :Break<cr>    |
+        \ nnoremap <leader>dB :Clear<cr>    |
+        \ nnoremap <leader>dn :Over<cr>     |
+        \ nnoremap <leader>dc :Continue<cr> |
+        \ nnoremap <leader>df :Finish<cr>   |
+        \ nnoremap <leader>de :Evaluate<cr> |
+        \ vnoremap <leader>de :Evaluate<cr>
+  " for some reason unmap doesn't appear to work with |
+  autocmd User TermdebugStopPre unmap <leader>ds
+  autocmd User TermdebugStopPre unmap <leader>db
+  autocmd User TermdebugStopPre unmap <leader>dB
+  autocmd User TermdebugStopPre unmap <leader>dn
+  autocmd User TermdebugStopPre unmap <leader>dc
+  autocmd User TermdebugStopPre unmap <leader>df
+  autocmd User TermdebugStopPre unmap <leader>de
+augroup END
 
 " install with
 " curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
@@ -368,6 +449,12 @@ call plug#begin('~/.vim/plugged')
     Plug 'arcticicestudio/nord-vim'
     " Undo tree viewer
     Plug 'mbbill/undotree'
+    " highlight words and lines
+    Plug 'azabiong/vim-highlighter'
+    " smooth scrolling
+    Plug 'psliwka/vim-smoothie'
+    " disabled by default
+    let g:smoothie_enabled=0
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
@@ -390,6 +477,8 @@ call plug#begin('~/.vim/plugged')
     let g:gitgutter_set_sign_backgrounds = 0
     " subversion
     " Plug 'juneedahamed/svnj.vim'
+    Plug 'lilliputten/vim-svngutter'
+    " let g:svngutter_set_sign_backgrounds = 0
     Plug 'fourjay/vim-vcscommand'
     " file explorer
     Plug 'tpope/vim-vinegar'
