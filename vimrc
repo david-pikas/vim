@@ -76,6 +76,8 @@ set number
 
 let mapleader = ' '
 
+" complete buffer based on how recently they where used
+set wildmode=lastused
 " switch between buffers
 nnoremap <leader>b :ls<cr>:b<space>
 " switch in arglst
@@ -137,7 +139,7 @@ nnoremap <F12> <C-]>
 nnoremap <F11> :Step<cr>
 nnoremap <F10> :Over<cr>
 
-command -bang CoworkerMode call CoworkerMode(<bang>1)
+command! -bang CoworkerMode call CoworkerMode(<bang>1)
 " expanded upon in nvim/init.vim
 function CoworkerMode(enable)
   if a:enable
@@ -153,7 +155,7 @@ endfunction
 nnoremap <silent> Y y$
 
 " change language
-nnoremap <leader>l :setlocal spell \| setlocal spelllang=
+nnoremap <leader>l :setlocal spell spelllang=
 
 nnoremap <silent> <leader>o :lopen<CR>
 
@@ -186,6 +188,51 @@ elseif executable('rg')
   set grepprg=rg
 endif
 
+" use M-i M-o to jump to next/prev file in jumplist
+function PrevJumpFile(up)
+    let old_lazy_redraw = &lazyredraw
+    let &lazyredraw = 1
+    let current_buffer = bufnr()
+
+    " Get the jump list and parse the position of the first jump in the list
+    " if the number is zero then we reached the top
+    let [jumps, curr] = getjumplist()
+    let jump_range = []
+    if a:up
+      " curr can sometimes be == len(jumps)
+      let jump_range = reverse(range(0, min([curr, len(jumps)-1])))
+    else
+      let jump_range = range(curr, len(jumps)-1)
+    endif
+    let targetjump = curr
+    for i in jump_range
+      if a:up && jumps[i]['bufnr'] != current_buffer
+        let targetjump = i
+        break
+      " if we're going forward in history, we want to find the last jump in
+      " the next file
+      elseif !(a:up) && jumps[i]['bufnr'] != current_buffer &&
+            \ (i == len(jumps)-1 || jumps[i]['bufnr'] != jumps[i+1]['bufnr'])
+        let targetjump = i
+        break
+      endif
+    endfor
+
+    " Execute the jump command until the buffer changes or there are no more jumps
+    for _ in range(min([curr, targetjump]), max([curr, targetjump]))[1:]
+        if a:up == v:true
+            execute "normal! \<c-o>"
+        else
+            " \<CR> is an ugly hack to do nothing but let the normal command
+            " see that it has an argument
+            execute "normal! \<CR>\<c-i>"
+        endif
+    endfor
+    let &lazyredraw = old_lazy_redraw
+endfunction
+
+nnoremap <silent> <M-o> :call PrevJumpFile(v:true)<CR>
+nnoremap <silent> <M-i> :call PrevJumpFile(v:false)<CR>
 
 " spell check
 augroup spellgroup

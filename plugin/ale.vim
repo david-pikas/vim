@@ -37,5 +37,6 @@ let g:ale_linters = { 'haskell':  []
                   \ , 'cpp': []
                   \ , 'erlang': []
                   \ , 'ruby': []
+                  \ , 'viml': []
                   \ }
 
