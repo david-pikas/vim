@@ -14,6 +14,7 @@ CompilerSet errorformat=
       \%-G%f,
       \%-G\\s%#,
       \%-G%.%#,
+      \%-G,
 
 let &cpo = s:cpo_save
 unlet s:cpo_save

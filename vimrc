@@ -49,6 +49,13 @@ set path+=**
 set complete+=i
 set complete+=t
 
+" no omnicemplete preview window
+set completeopt-=preview
+
+" open/close tabs
+nnoremap <C-w>t :tabnew<CR>
+nnoremap <C-w>T :tabclose<CR>
+
 " recolor tabline
 hi TabLineFill guifg=Black ctermfg=Black guibg=Black ctermbg=Black
 hi TabLine guifg=NONE ctermfg=DarkGrey guibg=NONE ctermbg=Black gui=NONE cterm=NONE
@@ -77,7 +84,7 @@ set number
 let mapleader = ' '
 
 " complete buffer based on how recently they where used
-set wildmode=lastused
+set wildmode=lastused:full
 " switch between buffers
 nnoremap <leader>b :ls<cr>:b<space>
 " switch in arglst
@@ -114,15 +121,28 @@ set fillchars=vert:\
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab smartindent
 
 " project specific config files
-set secure
-if filereadable(".vimlocal")
-  silent source .vimlocal
-endif
+function! SourceVimLocal()
+  set secure
+  let s:path = getcwd()
+  while 1
+    let s:newpath = fnamemodify(s:path, ':h')
+    if s:path == s:newpath
+      break
+    endif
+    let s:path = s:newpath
+    if filereadable(s:path . '/.vimlocal')
+      execute 'silent source '.s:path.'/.vimlocal'
+      break
+    endif
+  endwhile
+  set nosecure
+endfunction
+call SourceVimLocal()
 augroup vimlocal
   autocmd!
+  autocmd DirChanged * call SourceVimLocal()
   autocmd BufEnter .vimlocal set filetype=vim
 augroup END
-set nosecure
 
 " case insensitve q/w/wq/wqa
 command! -bang WQ wq<bang>
@@ -162,9 +182,30 @@ nnoremap <silent> <leader>o :lopen<CR>
 " select pasted content
 nnoremap gp `[v`]
 
+" maps for clipboard
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
+nnoremap <leader>y "+y
+nnoremap <leader>Y "+y$
+nnoremap <leader>yy "+yy
+
+" move by word fragment
+nnoremap <silent><M-w>      :call search("_\\i\\|\\l\\u\\|\\<","e")<CR>
+nnoremap <silent><M-b>      :call search("_\\i\\|\\l\\u\\|\\<","eb")<CR>
+nnoremap <silent><M-e>      :call search("\\i_\\i\\|\\l\\u\\|\\>","")<CR>
+nnoremap <silent>g<M-e>     :call search("\\i_\\i\\|\\l\\u\\|\\>","b")<CR>
+nnoremap <silent><M-g><M-e> :call search("\\i_\\i\\|\\l\\u\\|\\>","b")<CR>
+
 " scroll horizontally 
 nnoremap <C-L> 20zl20l
 nnoremap <C-H> 20zh20h
+
+" on windows, exclude ':' from isfname to make gF work as expected
+" (technically file names can include `:` on windows, but it's far
+" more common that it actually means line number)
+if has('win32')
+  set isfname=@,48-57,/,\\,.,-,_,+,,,#,$,%,{,},[,],@-@,!,~,=
+endif
 
 " use \<regex char group> to move to that group e.g. \d to move to next digit
 for regex in ['d','w','l','u','<','>','s','S'] 
@@ -179,14 +220,7 @@ for regex in ['d','w','l','u','<','>','s','S']
 endfor
 
 " use ripgrep for :grep
-if executable('vimrg')
-  " windows doesn't handle globs inside vim properly
-  " so instead we use a script that calls rg from fd
-  " if available
-  set grepprg=vimrg
-elseif executable('rg')
-  set grepprg=rg
-endif
+set grepprg=rg\ --vimgrep
 
 " use M-i M-o to jump to next/prev file in jumplist
 function PrevJumpFile(up)
@@ -218,16 +252,16 @@ function PrevJumpFile(up)
       endif
     endfor
 
-    " Execute the jump command until the buffer changes or there are no more jumps
-    for _ in range(min([curr, targetjump]), max([curr, targetjump]))[1:]
+    if curr != targetjump
+        let count = abs(curr-targetjump)
         if a:up == v:true
-            execute "normal! \<c-o>"
+            execute "normal! ".count."\<c-o>"
         else
-            " \<CR> is an ugly hack to do nothing but let the normal command
-            " see that it has an argument
-            execute "normal! \<CR>\<c-i>"
+            " note that `normal ^I` needs a
+            " count to work for some reason
+            execute "normal! ".count."\<c-i>"
         endif
-    endfor
+    endif
     let &lazyredraw = old_lazy_redraw
 endfunction
 
@@ -458,7 +492,6 @@ call plug#begin('~/.vim/plugged')
     vmap <leader>sa <Plug>(operator-sandwich-add)
     vmap <leader>sd <Plug>(operator-sandwich-delete)
     vmap <leader>sr <Plug>(operator-sandwich-replace)
-    " swap
     Plug 'tommcdo/vim-exchange'
     " text objects
     Plug 'wellle/targets.vim'
@@ -500,8 +533,11 @@ call plug#begin('~/.vim/plugged')
     Plug 'azabiong/vim-highlighter'
     " smooth scrolling
     Plug 'psliwka/vim-smoothie'
-    " disabled by default
     let g:smoothie_enabled=0
+    " show context (current function/class etc)
+    Plug 'wellle/context.vim'
+    let g:context_enabled=0
+    nnoremap <leader>c :ContextPeek<CR>
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
@@ -527,6 +563,7 @@ call plug#begin('~/.vim/plugged')
     Plug 'lilliputten/vim-svngutter'
     " let g:svngutter_set_sign_backgrounds = 0
     Plug 'fourjay/vim-vcscommand'
+    let g:VCSCommandDisableMappings = 1
     " file explorer
     Plug 'tpope/vim-vinegar'
     " visual studdio
@@ -538,9 +575,6 @@ call plug#begin('~/.vim/plugged')
     " linting
     " (see ~/.vim/plugin/ale.vim)
     Plug 'dense-analysis/ale'
-    " LSP (vim only)
-    " (see ~/.vim/plugin/lsc.vim)
-    Plug 'natebosch/vim-lsc'
     " elm
     Plug 'andys8/vim-elm-syntax'
     " spell check
@@ -563,22 +597,40 @@ call plug#begin('~/.vim/plugged')
     Plug 'cespare/vim-toml'
     " Emmet (for HTML)
     Plug 'mattn/emmet-vim'
-    " ren'py
-    Plug 'chaimleib/vim-renpy'
     let g:user_emmet_mode = 'iv'
     nnoremap <leader><C-y>u <plug>(emmet-update-tag)
     nnoremap <leader><C-y>d <plug>(emmet-balance-tag-inward)
     nnoremap <leader><C-y>D <plug>(emmet-balance-tag-outward)
     nnoremap <leader><C-y>n <plug>(emmet-move-next)
     nnoremap <leader><C-y>N <plug>(emmet-move-prev)
+    " ren'py
+    Plug 'chaimleib/vim-renpy'
+    " just
+    Plug 'NoahTheDuke/vim-just'
 
 
     "## NVIM SPECIFIC ##"
     if has('nvim')
         source ~/.config/nvim/nvim-plugins.vim
+    "## VIM SPECIFIC ##"
+    else
+      " LSP (vim only)
+      " (see ~/.vim/plugin/lsc.vim)
+      Plug 'natebosch/vim-lsc'
     endif
 
 call plug#end()
 
 colorscheme nord
 hi Normal guibg=NONE ctermbg=NONE
+
+" needs to be called after plug#end()
+let g:sandwich#recipes =
+  \ g:sandwich#default_recipes + [
+  \   {'buns': ['/*', '*/'], 'nesting': 1, 'input': ['c']}
+  \ ]
+
+" local.vim is .gitignored, it's only for machine specific settings
+if filereadable(expand('~/.vim/local.vim'))
+  source ~/.vim/local.vim
+endif
