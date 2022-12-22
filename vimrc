@@ -1,4 +1,6 @@
 " other config files:
+" local config file:
+"     ~/.vim/local.vim
 " syntax:
 "     ~/.vim/ftplugin/latex.vim
 "     ~/.vim/ftplugin/c.vim
@@ -53,8 +55,8 @@ set complete+=t
 set completeopt-=preview
 
 " open/close tabs
-nnoremap <C-w>t :tabnew<CR>
-nnoremap <C-w>T :tabclose<CR>
+nnoremap <C-w><C-t> :tabnew<CR>
+nnoremap <C-w><M-t> :tabclose<CR>
 
 " recolor tabline
 hi TabLineFill guifg=Black ctermfg=Black guibg=Black ctermbg=Black
@@ -120,40 +122,18 @@ set fillchars=vert:\
 " spaces instead of tabs
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab smartindent
 
-" project specific config files
-function! SourceVimLocal()
-  set secure
-  let s:path = getcwd()
-  while 1
-    let s:newpath = fnamemodify(s:path, ':h')
-    if s:path == s:newpath
-      break
-    endif
-    let s:path = s:newpath
-    if filereadable(s:path . '/.vimlocal')
-      execute 'silent source '.s:path.'/.vimlocal'
-      break
-    endif
-  endwhile
-  set nosecure
-endfunction
-call SourceVimLocal()
-augroup vimlocal
-  autocmd!
-  autocmd DirChanged * call SourceVimLocal()
-  autocmd BufEnter .vimlocal set filetype=vim
-augroup END
-
 " case insensitve q/w/wq/wqa
 command! -bang WQ wq<bang>
 command! -bang Wq wq<bang>
 command! -bang W w<bang>
 command! -bang Q q<bang>
+command! -bang Qa qa<bang>
+command! -bang QA qa<bang>
 command! -bang Wqa wqa<bang>
 command! -bang WQa wqa<bang>
 command! -bang WQA wqa<bang>
 
-" Cowerker friendly options
+" Coworker friendly options
 nnoremap <F5>  :Make<cr>
 nnoremap <F12> <C-]>
 nnoremap <F11> :Step<cr>
@@ -222,10 +202,10 @@ endfor
 " use ripgrep for :grep
 set grepprg=rg\ --vimgrep
 
+command! -nargs=? Grep Dispatch grep <args>
+
 " use M-i M-o to jump to next/prev file in jumplist
 function PrevJumpFile(up)
-    let old_lazy_redraw = &lazyredraw
-    let &lazyredraw = 1
     let current_buffer = bufnr()
 
     " Get the jump list and parse the position of the first jump in the list
@@ -262,7 +242,6 @@ function PrevJumpFile(up)
             execute "normal! ".count."\<c-i>"
         endif
     endif
-    let &lazyredraw = old_lazy_redraw
 endfunction
 
 nnoremap <silent> <M-o> :call PrevJumpFile(v:true)<CR>
@@ -451,6 +430,8 @@ autocmd FileType netrw setl bufhidden=wipe
 
 " built-in debugging plugin
 packadd termdebug
+" filter quickfix list
+packadd cfilter
 
 augroup debugger
   autocmd!
@@ -548,6 +529,11 @@ call plug#begin('~/.vim/plugged')
     " Plug 'wellle/tmux-complete.vim'
     " run things in tmux instead of blocking vim
     Plug 'tpope/vim-dispatch'
+    " allow for global dispatch
+    augroup g_dispatch
+      autocmd!
+      autocmd BufEnter * if !exists('b:dispatch') && exists('g:dispatch') | let b:dispatch=g:dispatch | endif
+    augroup END
     " fzf (fuzzy file finding)
     Plug 'junegunn/fzf', { 'do': './install --bin' }
     Plug 'junegunn/fzf.vim'
@@ -566,7 +552,7 @@ call plug#begin('~/.vim/plugged')
     let g:VCSCommandDisableMappings = 1
     " file explorer
     Plug 'tpope/vim-vinegar'
-    " visual studdio
+    " visual studio
     Plug 'heaths/vim-msbuild'
 
     "## LANGUAGES AND SYNTAX ##"
@@ -634,3 +620,27 @@ let g:sandwich#recipes =
 if filereadable(expand('~/.vim/local.vim'))
   source ~/.vim/local.vim
 endif
+
+" project specific config files
+function! SourceVimLocal()
+  set secure
+  let s:path = getcwd()
+  while 1
+    let s:newpath = fnamemodify(s:path, ':h')
+    if s:path == s:newpath
+      break
+    endif
+    let s:path = s:newpath
+    if filereadable(s:path . '/.vimlocal')
+      execute 'silent source '.s:path.'/.vimlocal'
+      break
+    endif
+  endwhile
+  set nosecure
+endfunction
+call SourceVimLocal()
+augroup vimlocal
+  autocmd!
+  autocmd DirChanged * call SourceVimLocal()
+  autocmd BufEnter .vimlocal set filetype=vim
+augroup END
