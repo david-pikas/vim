@@ -32,7 +32,7 @@ function! s:FindRunFd(path) abort
       let segments = segments->map({ix, val -> val->substitute('[/\\]','\\\\','g')})
     endif
   endif
-  return system('fd --type f -g "'.fname.'" '.fpath.depth)
+  return system('fd -g "'.fname.'" '.fpath.depth)
         \ ->split('\n')
         \ ->filter({ix,val -> !len(segments) || val =~# '\V'.segments->join('\.\*')})
 endfunction

@@ -4,6 +4,7 @@
 " syntax:
 "     ~/.vim/ftplugin/latex.vim
 "     ~/.vim/ftplugin/c.vim
+"     ~/.vim/ftplugin/vimwiki.vim
 " plugin:
 "     ~/.vim/plugin/lsc.vim
 "     ~/.vim/plugin/ale.vim
@@ -38,6 +39,8 @@ let g:vimsyn_embed = 'lp'
 set hidden
 " diffoff when a buffer becomes hidden
 set diffopt+=hiddenoff
+" better diff algrotirhm
+set diffopt+=internal,algorithm:patience,indent-heuristic
 
 " search settings
 set incsearch
@@ -67,7 +70,7 @@ hi Tabline guifg=NONE ctermfg=LightGrey guibg=NONE ctermbg=Grey
 hi VertSplit ctermfg=Black ctermbg=Black 
 
 " remove split character
-set fillchars=vert:\ 
+set fillchars=vert:│
 
 " recolor gutter
 set signcolumn=number
@@ -92,9 +95,12 @@ nnoremap <leader>b :ls<cr>:b<space>
 " switch in arglst
 nnoremap <leader>a :args<cr>:argument<space>
 
-" open windows in a more normal wa
+" open windows in a more normal way
 set splitbelow
 set splitright
+
+" don't scroll the window when making a split
+set splitkeep=screen
 
 " grep word under cursor
 nnoremap <leader>gr :vimgrep "\<<C-R><C-W>\>" %:p:h/*
@@ -108,16 +114,10 @@ set t_Co=256
 
 " use mouse
 set mouse=a
-map <ScrollWheelUp> <C-Y>
-map <S-ScrollWheelUp> <C-U>
-map <ScrollWheelDown> <C-E>
-map <S-ScrollWheelDown> <C-D>
-
-" recolor split
-hi VertSplit ctermfg=Black ctermbg=Black 
-
-" remove split character
-set fillchars=vert:\ 
+map <ScrollWheelUp> 3<C-Y>
+map <S-ScrollWheelUp> 3<C-U>
+map <ScrollWheelDown> 3<C-E>
+map <S-ScrollWheelDown> 3<C-D>
 
 " spaces instead of tabs
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab smartindent
@@ -160,7 +160,7 @@ nnoremap <leader>l :setlocal spell spelllang=
 nnoremap <silent> <leader>o :lopen<CR>
 
 " select pasted content
-nnoremap gp `[v`]
+nnoremap g[ `[v`]
 
 " maps for clipboard
 nnoremap <leader>p "+p
@@ -169,12 +169,40 @@ nnoremap <leader>y "+y
 nnoremap <leader>Y "+y$
 nnoremap <leader>yy "+yy
 
+" foo_bar fooBar
+
 " move by word fragment
-nnoremap <silent><M-w>      :call search("_\\i\\|\\l\\u\\|\\<","e")<CR>
-nnoremap <silent><M-b>      :call search("_\\i\\|\\l\\u\\|\\<","eb")<CR>
-nnoremap <silent><M-e>      :call search("\\i_\\i\\|\\l\\u\\|\\>","")<CR>
-nnoremap <silent>g<M-e>     :call search("\\i_\\i\\|\\l\\u\\|\\>","b")<CR>
-nnoremap <silent><M-g><M-e> :call search("\\i_\\i\\|\\l\\u\\|\\>","b")<CR>
+nnoremap <silent><M-w> :call search("_\\i\\\|\\l\\u\\\|\\<","e")<CR>
+onoremap <silent><M-w> :call search("_\\i\\\|\\l\\u\\\|\\<","e")<CR>
+nnoremap <silent><M-b> :call search("_\\i\\\|\\l\\u\\\|\\<\\i","eb")<CR>
+onoremap <silent><M-b> :call search("_\\i\\\|\\l\\u\\\|\\<\\i","eb")<CR>
+nnoremap <silent><M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\i\\>","")<CR>
+onoremap <silent><M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\i\\>","")<CR>
+nnoremap <silent>g<M-e> :call search("\i_\\i\\\|\\l\\u\\\|\\>","b")<CR>
+onoremap <silent>g<M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\>","b")<CR>
+nnoremap <silent><M-g><M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\i\\>","b")<CR>
+onoremap <silent><M-g><M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\i\\>","b")<CR>
+
+" align to char in precious line
+inoremap <silent><C-f> <cmd>call AlignAfterPrevLine()<cr>
+
+function! AlignAfterPrevLine()
+  let start_pos = getpos('.')
+  let pat = input("Pattern to align after: ")
+  call setpos('.', [start_pos[0], start_pos[1]-1, 0, start_pos[3]])
+  let matched = search(pat, "", line("."))
+  let found_pos = getpos('.')
+  normal j^
+  if (matched)
+    let first_non_ws = getpos('.')
+    let line = getline(start_pos[1])
+    let new_line = substitute(line, '^\s*', repeat(' ', found_pos[2]-1), "")
+    call setline(start_pos[1], new_line)
+    call setpos('.', [start_pos[0], start_pos[1], start_pos[2] + found_pos[2] - first_non_ws[2], start_pos[3]])
+  else
+    call setpos('.', start_pos)
+  endif
+endfunction
 
 " scroll horizontally 
 nnoremap <C-L> 20zl20l
@@ -411,7 +439,7 @@ endfunction
 
 command -nargs=1 Retab execute "set noexpandtab | retab! | set tabstop=<args> softtabstop=<args> expandtab | retab!"
 
-autocmd FileType txt,text,markdown,md,tex,latex setlocal linebreak
+autocmd FileType txt,text,markdown,md,tex,latex,vimwiki setlocal linebreak
 
 " symbols
 set conceallevel=2
@@ -541,12 +569,13 @@ call plug#begin('~/.vim/plugged')
     Plug 'tpope/vim-rsi'
     " git stuff
     Plug 'tpope/vim-fugitive'
+    Plug 'shumphrey/fugitive-gitlab.vim'
     Plug 'tpope/vim-rhubarb'
     Plug 'airblade/vim-gitgutter'
     let g:gitgutter_set_sign_backgrounds = 0
     " subversion
     " Plug 'juneedahamed/svnj.vim'
-    Plug 'lilliputten/vim-svngutter'
+    Plug 'lilliputten/vim-svngutter', { 'branch': 'win32-dev-null' }
     " let g:svngutter_set_sign_backgrounds = 0
     Plug 'fourjay/vim-vcscommand'
     let g:VCSCommandDisableMappings = 1
@@ -554,6 +583,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'tpope/vim-vinegar'
     " visual studio
     Plug 'heaths/vim-msbuild'
+    " vimwiki
+    Plug 'vimwiki/vimwiki'
 
     "## LANGUAGES AND SYNTAX ##"
     " indent
