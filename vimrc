@@ -21,7 +21,6 @@ filetype plugin on
 
 " true colors
 set termguicolors
-
 " change language to english
 language en_US.utf8
 
@@ -141,11 +140,13 @@ nnoremap <F10> :Over<cr>
 
 command! -bang CoworkerMode call CoworkerMode(<bang>1)
 " expanded upon in nvim/init.vim
-function CoworkerMode(enable)
+function! CoworkerMode(enable)
   if a:enable
+    set cursorline
     set selectmode=mouse
     let g:smoothie_enabled=1
   else
+    set nocursorline
     let g:smoothie_enabled=0
     set selectmode=
   endif
@@ -176,8 +177,9 @@ nnoremap <silent><M-w> :call search("_\\i\\\|\\l\\u\\\|\\<","e")<CR>
 onoremap <silent><M-w> :call search("_\\i\\\|\\l\\u\\\|\\<","e")<CR>
 nnoremap <silent><M-b> :call search("_\\i\\\|\\l\\u\\\|\\<\\i","eb")<CR>
 onoremap <silent><M-b> :call search("_\\i\\\|\\l\\u\\\|\\<\\i","eb")<CR>
-nnoremap <silent><M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\i\\>","")<CR>
-onoremap <silent><M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\i\\>","")<CR>
+nnoremap <silent><M-e> :call search("\\i_\\i\\\|\\l\\u\\\|.\\>","")<CR>
+" we want the operator version to be inclusive of the ending character
+onoremap <silent><M-e> :call search("\\i\\zs_\\i\\\|\\l\\zs\\u\\\|.\\zs\\>","")<CR>
 nnoremap <silent>g<M-e> :call search("\i_\\i\\\|\\l\\u\\\|\\>","b")<CR>
 onoremap <silent>g<M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\>","b")<CR>
 nnoremap <silent><M-g><M-e> :call search("\\i_\\i\\\|\\l\\u\\\|\\i\\>","b")<CR>
@@ -397,14 +399,15 @@ command DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis | wincmd p | di
 
 command -nargs=? SvnDiff call SvnDiff("<args>")
 
-function! SvnDiff(revision)
-  call SvnDiffFile(expand('%'), revision)
+function! SvnDiff(revision) abort
+  call SvnDiffFile(expand('%:p'), a:revision)
 endfunction
 
 command -nargs=? SvnDiffAll call SvnDiffAll("<args>")
 
-function! SvnDiffAll(revision)
-  let changed = system('svn diff --summarize')
+function! SvnDiffAll(revision) abort
+  let path = expand('%:p:h')
+  let changed = system('cd ' .. path .. ' && svn diff --summarize')
   if changed =~# '^svn: E.*'
       echoerr "not in a svn directory"
   endif
@@ -412,9 +415,11 @@ function! SvnDiffAll(revision)
   for item in changed_list 
       if item =~# '^MM\?'
           let file = matchlist(item, 'MM\?\s*\(.*$\)')[1]
+          echo file
+          let absfile = path .. '/' .. file
           execute 'tabnew'
-          execute 'edit '.file
-          call SvnDiffFile(file, a:revision)
+          execute 'edit '.absfile
+          call SvnDiffFile(absfile, a:revision)
       endif
   endfor
 endfunction
@@ -423,14 +428,15 @@ endfunction
 " open file, not the file argument. These happen to be the same
 " so far, but this should be changed if the function is used in
 " more complicated ways.
-function! SvnDiffFile(file, revision)
+function! SvnDiffFile(file, revision) abort
+  let path = fnamemodify(a:file, ':p:h')
   let ft = &filetype
   let diffname = tempname()
   let revisionarg = ""
   if a:revision
     let revisionarg = '-r ' . a:revision
   endif
-  let basecontent = system('svn cat ' . a:file . ' ' . revisionarg)
+  let basecontent = system('cd ' .. path .. ' && svn cat ' . a:file . ' ' . revisionarg)
   call writefile(split(basecontent, '\n'), diffname)
   execute 'e ' . diffname
   let &filetype = ft
@@ -547,6 +553,16 @@ call plug#begin('~/.vim/plugged')
     Plug 'wellle/context.vim'
     let g:context_enabled=0
     nnoremap <leader>c :ContextPeek<CR>
+    " window layouts
+    Plug 'ddrscott/vim-window'
+    nnoremap <C-w>r <cmd>call window#rotate(-1 * v:count1)<cr>
+    nmap <C-w><C-r> <C-w>r
+    nnoremap <C-w>x <cmd>call window#exchange(v:count)<cr>
+    nnoremap <C-w><c-x> <cmd>call window#exchange(v:count)<cr>
+    nnoremap <C-w>gl <cmd>call window#join('rightbelow vsplit', v:count)<cr>
+    nnoremap <C-w>gh <cmd>call window#join('leftabove vsplit', v:count) <cr>
+    nnoremap <C-w>gj <cmd>call window#join('belowright split', v:count) <cr>
+    nnoremap <C-w>gk <cmd>call window#join('aboveleft split', v:count)  <cr>
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
