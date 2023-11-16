@@ -672,17 +672,17 @@ endif
 function! SourceVimLocal()
   set secure
   let s:path = getcwd()
-  while 1
+  for i in range(5)
     let s:newpath = fnamemodify(s:path, ':h')
     if s:path == s:newpath
       break
     endif
-    let s:path = s:newpath
     if filereadable(s:path . '/.vimlocal')
       execute 'silent source '.s:path.'/.vimlocal'
       break
     endif
-  endwhile
+    let s:path = s:newpath
+  endfor
   set nosecure
 endfunction
 call SourceVimLocal()
