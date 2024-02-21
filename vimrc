@@ -39,7 +39,7 @@ set hidden
 " diffoff when a buffer becomes hidden
 set diffopt+=hiddenoff
 " better diff algrotirhm
-set diffopt+=internal,algorithm:patience,indent-heuristic
+set diffopt+=internal,algorithm:histogram,indent-heuristic
 
 " search settings
 set incsearch
@@ -563,6 +563,8 @@ call plug#begin('~/.vim/plugged')
     nnoremap <C-w>gh <cmd>call window#join('leftabove vsplit', v:count) <cr>
     nnoremap <C-w>gj <cmd>call window#join('belowright split', v:count) <cr>
     nnoremap <C-w>gk <cmd>call window#join('aboveleft split', v:count)  <cr>
+    " managing directory based configs
+    Plug 'tpope/vim-projectionist'
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
@@ -589,6 +591,7 @@ call plug#begin('~/.vim/plugged')
     Plug 'tpope/vim-rhubarb'
     Plug 'airblade/vim-gitgutter'
     let g:gitgutter_set_sign_backgrounds = 0
+    Plug 'whiteinge/diffconflicts'
     " subversion
     " Plug 'juneedahamed/svnj.vim'
     Plug 'lilliputten/vim-svngutter', { 'branch': 'win32-dev-null' }
@@ -640,6 +643,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'chaimleib/vim-renpy'
     " just
     Plug 'NoahTheDuke/vim-just'
+    " zoxide (cd based on common directories)
+    Plug 'nanotee/zoxide.vim'
 
 
     "## NVIM SPECIFIC ##"
@@ -650,6 +655,8 @@ call plug#begin('~/.vim/plugged')
       " LSP (vim only)
       " (see ~/.vim/plugin/lsc.vim)
       Plug 'natebosch/vim-lsc'
+      " highlight yanked text (supported natively on nvim)
+      Plug 'machakann/vim-highlightedyank'
     endif
 
 call plug#end()
