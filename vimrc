@@ -31,6 +31,9 @@ set conceallevel=2
 set list
 set listchars=trail:·,tab:» 
 
+" number of lines to keep on the screen
+set scrolloff=3
+
 " highlight embeded languages
 let g:vimsyn_embed = 'lp'
 
