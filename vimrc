@@ -236,12 +236,6 @@ augroup c
   autocmd FileType cpp call rcfuncs#CFiles()
 augroup END
 
-augroup haskell
-  autocmd!
-  autocmd FileType haskell
-    \ compiler stack |
-    \ setlocal makeprg=stack\ build
-augroup END
 
 " continous compilation
 " bang turns it off again
