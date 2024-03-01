@@ -217,6 +217,9 @@ command! -nargs=? Grep Dispatch grep <args>
 " use M-i M-o to jump to next/prev file in jumplist
 nnoremap <silent> <M-o> :call rcfuncs#PrevJumpFile(v:true)<CR>
 nnoremap <silent> <M-i> :call rcfuncs#PrevJumpFile(v:false)<CR>
+" alt mappings might not work on vim so add leader based ones as backup
+nnoremap <silent> <leader><C-o> :call rcfuncs#PrevJumpFile(v:true)<CR>
+nnoremap <silent> <leader><C-i> :call rcfuncs#PrevJumpFile(v:false)<CR>
 
 " alt mappings don't always work in vim so use <leader>-prefixed mappings as a
 " fallback
