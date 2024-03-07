@@ -1,4 +1,4 @@
-set commentstring=//%s
+set commentstring=//\ %s
 let s:path = expand('%:p:h')
 let s:compile_commands_file = ''
 if filereadable('compile_commands.json')
@@ -37,3 +37,5 @@ endif
 function! PrintCIncludesCache()
   echo s:include_cache
 endfunction
+
+call rcfuncs#CFiles()

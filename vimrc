@@ -2,9 +2,13 @@
 " local config file:
 "     ~/.vim/local.vim
 " syntax:
-"     ~/.vim/ftplugin/latex.vim
-"     ~/.vim/ftplugin/c.vim
-"     ~/.vim/ftplugin/vimwiki.vim
+"     ~/.vim/after/ftplugin/c.vim
+"     ~/.vim/after/ftplugin/cpp.vim
+"     ~/.vim/after/ftplugin/latex.vim
+"     ~/.vim/after/ftplugin/markdown.vim
+"     ~/.vim/after/ftplugin/rust.vim
+"     ~/.vim/after/ftplugin/tex.vim
+"     ~/.vim/after/ftplugin/vimwiki.vim
 " plugin:
 "     ~/.vim/plugin/lsc.vim
 "     ~/.vim/plugin/ale.vim
@@ -218,26 +222,8 @@ augroup spellgroup
     autocmd FileType txt,markdown,md,tex,latex setlocal spell
 augroup END
 
-augroup md
-  autocmd!
-  " pandoc as make
-  autocmd FileType markdown
-    \ setlocal makeprg=pandoc\ %\ -t\ latex\ -o\ %:r.pdf |
-    \ setlocal errorformat=\"%f\",\ line\ %l:\ %m
-augroup END
-
-augroup rust
-  autocmd!
-  autocmd FileType rust
-    \ compiler rustc |
-    \ setlocal makeprg=cargo\ check 
-    " \ setlocal errorformat=%.%#-->\ %f:%l:%c |
-    " \ setlocal errorformat+=%.%#-->\ %f\|%l\ col\ %c\\
-augroup END
-
 augroup c
   autocmd!
-  autocmd FileType c   call rcfuncs#CFiles()
   autocmd FileType cpp call rcfuncs#CFiles()
 augroup END
 
