@@ -14,6 +14,7 @@
 "     ~/.vim/plugin/ale.vim
 "     ~/.vim/plugin/textobj.vim
 "     ~/.config/nvim/nvim-plugins.vim
+" compilers:
 "     ~/.vim/after/compiler/iar.vim
 "     ~/.vim/after/compiler/visualstudio.vim
 
