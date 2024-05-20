@@ -9,6 +9,7 @@
 "     ~/.vim/after/ftplugin/rust.vim
 "     ~/.vim/after/ftplugin/tex.vim
 "     ~/.vim/after/ftplugin/vimwiki.vim
+"     ~/.vim/after/ftplugin/ruby.vim
 " plugin:
 "     ~/.vim/plugin/lsc.vim
 "     ~/.vim/plugin/ale.vim
