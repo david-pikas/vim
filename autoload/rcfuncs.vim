@@ -29,7 +29,7 @@ function! rcfuncs#AlignAfterPrevLine()
   endif
 endfunction
 
-function PrevJumpFile(up)
+function rcfuncs#PrevJumpFile(up)
     let current_buffer = bufnr()
 
     " Get the jump list and parse the position of the first jump in the list
@@ -105,7 +105,7 @@ function! rcfuncs#ToggleHeaderFile()
   return 0
 endfunction
 
-function ToggleAutoMake(bang)
+function rcfuncs#ToggleAutoMake(bang)
   augroup automake
     autocmd! * 
     if a:bang == 0
@@ -114,7 +114,7 @@ function ToggleAutoMake(bang)
   augroup END
 endfunction
 
-function MakeTags()
+function rcfuncs#MakeTags()
   silent exec "Spawn! ctags -R " . getcwd()
 endfunction
 
@@ -164,7 +164,7 @@ endfunction
 function! rcfuncs#SourceVimLocal()
   set secure
   let s:path = getcwd()
-  for i in range(5)
+  for i in range(8)
     let s:newpath = fnamemodify(s:path, ':h')
     if s:path == s:newpath
       break
@@ -176,4 +176,39 @@ function! rcfuncs#SourceVimLocal()
     let s:path = s:newpath
   endfor
   set nosecure
+endfunction
+
+
+let s:rg_prefixes = {
+      \ 'R': 'grep',
+      \ 'RA': 'grepadd'}
+
+function! rcfuncs#ProjectionistRipGrep() abort
+  for [command, patterns] in items(projectionist#navigation_commands())
+    for [prefix, excmd] in items(s:rg_prefixes)
+      execute 'command! -buffer -bang -nargs=1 '
+            \ prefix . substitute(command, '\A', '', 'g')
+            \ ':call s:Projectionist_ripgrep("'.excmd.'<bang>",'.string(patterns).', <q-args>)'
+    endfor
+  endfor
+endfunction
+
+function! s:Projectionist_ripgrep(grep, variants, pattern) abort
+  let secondary_grep = a:grep =~# 'add' ? a:grep : substitute(a:grep, 'grep', 'grepadd', '')
+  let first_batch = v:true
+  for variant in a:variants
+    " group 1: 'foo' in foo/bar*baz
+    " group 2: 'bar' in foo/bar*baz
+    " group 3: 'baz' in foo/bar*baz
+    let match = matchlist(variant[1], '\v^(%([^\/\\*]*/)+)%(\*\*[\/\\]|([^*\/\\])*)\*(.*)$')
+    if [] != match
+      let path = variant[0] . projectionist#slash() . match[1]
+      let glob = ''
+      if '' != match[2] . match[3]
+        let glob = ' -g ' . escape(match[2] . '*' . match[3], ' ')
+      endif
+      execute (first_batch ? a:grep : secondary_grep) . ' ' . a:pattern . glob . ' ' . path
+      let first_batch = v:false
+    endif
+  endfor
 endfunction
