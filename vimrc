@@ -499,8 +499,11 @@ call plug#begin('~/.vim/plugged')
 
 call plug#end()
 
+augroup nordcustom
+  autocmd!
+  autocmd ColorScheme nord highlight Normal guibg=NONE ctermbg=NONE
+augroup END
 colorscheme nord
-hi Normal guibg=NONE ctermbg=NONE
 
 " needs to be called after plug#end()
 let g:sandwich#recipes =
