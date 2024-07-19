@@ -442,6 +442,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'heaths/vim-msbuild'
     " vimwiki
     Plug 'vimwiki/vimwiki'
+    " ansi escape codes
+    Plug 'vim-scripts/AnsiEsc.vim'
 
     "## LANGUAGES AND SYNTAX ##"
     " indent
