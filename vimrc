@@ -301,9 +301,9 @@ autocmd FileType netrw setl bufhidden=wipe
 "## PLUGINS ##"
 
 " built-in debugging plugin
-packadd termdebug
+packadd! termdebug
 " filter quickfix list
-packadd cfilter
+packadd! cfilter
 
 augroup debugger
   autocmd!
