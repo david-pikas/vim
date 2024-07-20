@@ -221,13 +221,6 @@ nnoremap <silent> <M-i> :call rcfuncs#PrevJumpFile(v:false)<CR>
 nnoremap <silent> <leader><C-o> :call rcfuncs#PrevJumpFile(v:true)<CR>
 nnoremap <silent> <leader><C-i> :call rcfuncs#PrevJumpFile(v:false)<CR>
 
-" alt mappings don't always work in vim so use <leader>-prefixed mappings as a
-" fallback
-nnoremap <silent> <leader><C-o> :call PrevJumpFile(v:true)<CR>
-nnoremap <silent> <leader><C-i> :call PrevJumpFile(v:false)<CR>
-nnoremap <silent> <M-o> :call PrevJumpFile(v:true)<CR>
-nnoremap <silent> <M-i> :call PrevJumpFile(v:false)<CR>
-
 " spell check
 augroup spellgroup
     autocmd!
