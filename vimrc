@@ -380,7 +380,12 @@ call plug#begin('~/.vim/plugged')
     " show context (current function/class etc)
     Plug 'wellle/context.vim'
     let g:context_enabled=0
-    nnoremap <leader>c :ContextPeek<CR>
+    if has('nvim')
+      " context peek doesn't work properly on nvim
+      nnoremap <leader>c :ContextToggle<CR>
+    else
+      nnoremap <leader>c :ContextPeek<CR>
+    endif
     " window layouts
     Plug 'ddrscott/vim-window'
     nnoremap <C-w>r <cmd>call window#rotate(-1 * v:count1)<cr>
