@@ -101,7 +101,7 @@ set wildmode=lastused:full
 " switch between buffers
 nnoremap <leader>b :ls<cr>:b<space>
 " switch in arglst
-nnoremap <leader>a :args<cr>:argument<space>
+nnoremap <leader>a <cmd>call rcfuncs#ListArgs()<cr>:argument<space>
 
 " open windows in a more normal way
 set splitbelow

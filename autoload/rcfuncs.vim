@@ -81,6 +81,15 @@ function! rcfuncs#ToggleHeaderSearch()
   endif
 endfunction
 
+function! rcfuncs#ListArgs()
+  let args = argv()
+  let i = 0
+  for arg in args
+    echo i." ".arg
+    let i += 1
+  endfor
+endfunction
+
 function! rcfuncs#ToggleHeaderFile()
   if exists(':ClangdSwitchSourceHeader')
     ClangdSwitchSourceHeader
