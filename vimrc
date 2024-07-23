@@ -398,6 +398,10 @@ call plug#begin('~/.vim/plugged')
     nnoremap <C-w>gk <cmd>call window#join('aboveleft split', v:count)  <cr>
     " managing directory based configs
     Plug 'tpope/vim-projectionist'
+    augroup MyProjectionist
+      autocmd!
+      autocmd User ProjectionistActivate call rcfuncs#ProjectionistRipGrep()
+    augroup END
 
     "## OUTSIDE INTEGRATION ##"
     " unix helpers
