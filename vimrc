@@ -265,7 +265,7 @@ endfunction
 command -range Dictate execute "<line1>,<line2>w !pandoc -f " . PandocSyntax(&syntax) . " -t plain | festival --tts"
 
 " see :h :DiffOrig
-command DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis | wincmd p | diffthis
+command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
 
 command -nargs=? SvnDiff call rcfuncs#SvnDiff("<args>")
 
