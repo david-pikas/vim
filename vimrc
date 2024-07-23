@@ -114,7 +114,7 @@ set splitkeep=screen
 nnoremap <leader>gr :vimgrep "\<<C-R><C-W>\>" %:p:h/*
 
 " expand block
-inoremap {<Tab> {<CR><CR>}kcc
+inoremap {<Tab> {<CR><CR>}<ESC>kcc
 
 " More colors
 set t_Co=256
