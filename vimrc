@@ -368,6 +368,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'jeetsukumaran/vim-indentwise'
     " Diffing sections of text
     Plug 'AndrewRadev/linediff.vim'
+    " word diff
+    Plug 'rickhowe/diffchar.vim'
     " colorscheme
     Plug 'arcticicestudio/nord-vim'
     " Undo tree viewer
@@ -443,6 +445,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'vimwiki/vimwiki'
     " ansi escape codes
     Plug 'vim-scripts/AnsiEsc.vim'
+    " zoxide (cd based on common directories)
+    Plug 'nanotee/zoxide.vim'
 
     "## LANGUAGES AND SYNTAX ##"
     " indent
@@ -482,8 +486,6 @@ call plug#begin('~/.vim/plugged')
     Plug 'chaimleib/vim-renpy'
     " just
     Plug 'NoahTheDuke/vim-just'
-    " zoxide (cd based on common directories)
-    Plug 'nanotee/zoxide.vim'
 
 
     "## NVIM SPECIFIC ##"
