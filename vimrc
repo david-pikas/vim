@@ -291,10 +291,11 @@ autocmd FileType netrw setl bufhidden=wipe
 
 "## PLUGINS ##"
 
-" built-in debugging plugin
-packadd! termdebug
 " filter quickfix list
 packadd! cfilter
+" built-in debugging plugin
+packadd! termdebug
+let g:termdebug_config = { "wide": v:true }
 
 augroup debugger
   autocmd!
