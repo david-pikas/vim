@@ -1,2 +1,2 @@
-source ~/.vim/ftplugin/latex.vim
+source ~/.vim/after/ftplugin/latex.vim
 

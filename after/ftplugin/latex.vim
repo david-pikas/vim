@@ -21,7 +21,8 @@ endfunc
 silent call BabelSpellLang()
 
 " pdflatex as make
-setlocal makeprg=rubber\ --into\ %:h\ --shell-escape\ --pdf\ %
+setlocal makeprg=pdflatex\ %\ -shell-escape
+" setlocal makeprg=rubber\ --into\ %:h\ --shell-escape\ --pdf\ %
 setlocal errorformat=%f:%l:\ %m
 
 " move tag
