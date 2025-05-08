@@ -18,6 +18,7 @@
 " compilers:
 "     ~/.vim/after/compiler/iar.vim
 "     ~/.vim/after/compiler/visualstudio.vim
+"     ~/.vim/after/compiler/ninjamsvc.vim
 
 
 set nocompatible
