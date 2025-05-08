@@ -434,7 +434,7 @@ call plug#begin('~/.vim/plugged')
     Plug 'whiteinge/diffconflicts'
     " subversion
     " Plug 'juneedahamed/svnj.vim'
-    Plug 'lilliputten/vim-svngutter', { 'branch': 'win32-dev-null' }
+    " Plug 'lilliputten/vim-svngutter', { 'branch': 'win32-dev-null' }
     " let g:svngutter_set_sign_backgrounds = 0
     Plug 'fourjay/vim-vcscommand'
     let g:VCSCommandDisableMappings = 1
