@@ -326,7 +326,10 @@ call plug#begin('~/.vim/plugged')
     " comments
     Plug 'tpope/vim-commentary'
     " alignment
-    Plug 'tommcdo/vim-lion'
+    " Plug 'tommcdo/vim-lion'
+    Plug 'junegunn/vim-easy-align'
+    nnoremap gl <Plug>(EasyAlign)
+    vnoremap gl <Plug>(EasyAlign)
     " surround
     Plug 'machakann/vim-sandwich'
     let g:operator_sandwich_no_default_key_mappings = 1
