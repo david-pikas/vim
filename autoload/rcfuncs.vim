@@ -2,11 +2,15 @@ function! rcfuncs#CoworkerMode(enable)
   if a:enable
     set cursorline
     set selectmode=mouse
-    let g:smoothie_enabled=1
+    if !exists('g:neovide')
+      let g:smoothie_enabled=1
+    endif
   else
     set nocursorline
-    let g:smoothie_enabled=0
     set selectmode=
+    if !exists('g:neovide')
+      let g:smoothie_enabled=0
+    endif
   endif
 endfunction
 
